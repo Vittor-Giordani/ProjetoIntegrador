@@ -1,0 +1,22 @@
+<div class="auth-card">
+  <h2>Login</h2>
+
+  <%= form_with url: login_path, local: true do |f| %>
+    <div class="mb-3">
+      <%= label_tag :email, "Email", class: "form-label" %>
+      <%= email_field_tag :email, nil, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= label_tag :password, "Senha", class: "form-label" %>
+      <%= password_field_tag :password, nil, class: "form-control" %>
+    </div>
+
+    <%= submit_tag "Entrar", class: "btn btn-primary w-100 mb-3" %>
+  <% end %>
+
+  <div class="text-center">
+    <p>Não tem conta?</p>
+    <%= link_to "Cadastre-se", signup_path, class: "btn btn-outline-secondary w-100" %>
+  </div>
+</div>
