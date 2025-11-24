@@ -1,0 +1,46 @@
+<div class="container mt-4">
+  <h3>Editar Produto</h3>  <!-- Mudei de "Novo Produto" para "Editar Produto" -->
+
+  <div class="card shadow-sm mt-3">
+    <div class="card-body">
+
+      <%= form_with(model: @product, url: product_path(@product), method: :patch, local: true) do |f| %>
+        <!-- Adicionei tratamento de erros (igual ao padrão Rails) -->
+        <% if @product.errors.any? %>
+          <div class="alert alert-danger">
+            <h5><%= pluralize(@product.errors.count, "erro") %> impediram a atualização:</h5>
+            <ul>
+              <% @product.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="mb-3">
+          <%= f.label :nome, "Nome do Produto" %>
+          <%= f.text_field :nome, class: "form-control" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :tipo, "Tipo" %>
+          <%= f.text_field :tipo, class: "form-control" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :valor, "Valor" %>
+          <%= f.number_field :valor, step: "0.01", class: "form-control" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :status, "Status" %>
+          <%= f.select :status, ["ativo", "inativo"], {}, class: "form-select" %>
+        </div>
+
+        <%= f.submit "Salvar Alterações", class: "btn btn-success" %>  <!-- Mudei o texto do botão -->
+        <%= link_to "Voltar", dashboard_produtos_path, class: "btn btn-secondary ms-2" %>  <!-- Link para voltar ao dashboard/produtos -->
+      <% end %>
+
+    </div>
+  </div>
+</div>

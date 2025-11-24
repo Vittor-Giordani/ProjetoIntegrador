@@ -1,0 +1,74 @@
+<div class="container-fluid mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Produtos</h3>
+
+    <div>
+      <a href="<%= new_product_path %>" class="btn btn-success shadow-sm">
+        + Cadastrar Produto
+      </a>
+
+      <button class="btn btn-primary shadow-sm" onclick="window.location.reload();">
+        Atualizar Lista
+      </button>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th class="text-center">Código</th>
+              <th>Nome</th>
+              <th>Tipo</th>
+              <th class="text-center">Valor</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @produtos.each do |p| %>
+              <tr>
+                <td class="text-center"><%= p.codigo_produto %></td>
+                <td><%= p.nome %></td>
+                <td><%= p.tipo %></td>
+                <td class="text-center">R$ <%= p.valor %></td>
+
+                <td class="text-center">
+                  <% if p.status.to_s.strip.downcase == "ativo" %>
+                    <span class="badge bg-success">Ativo</span>
+                  <% else %>
+                    <span class="badge bg-secondary">Inativo</span>
+                  <% end %>
+                </td>
+
+                <td class="text-center">
+
+                  <a href="<%= edit_product_path(p) %>" class="btn btn-sm btn-warning">
+                    Editar
+                  </a>
+
+                  <%= button_to "Excluir" ,
+                      product_path(p),
+                      method: :delete,
+                      data: { confirm: "Tem certeza que deseja excluir este produto?" },
+                      class: "btn btn-sm btn-danger" %>
+
+                </td>
+
+              </tr>
+            <% end %>
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
