@@ -27,8 +27,8 @@
           <%= f.select :status, ["ativo", "inativo"], {}, class: "form-select" %>
         </div>
 
+        <%= link_to "Voltar", dashboard_produtos_path, class: "btn btn-secondary ms-2" %>
         <%= f.submit "Salvar", class: "btn btn-success" %>
-
       <% end %>
 
     </div>

@@ -1,0 +1,20 @@
+<div class="container-fluid mt-4">
+  <div class="card shadow-sm p-4">
+
+    <h2 class="mb-3">Relatórios</h2>
+
+    <p class="lead mb-4">
+      Abaixo você encontra os relatórios disponíveis para download. Clique nos botões para gerar e baixar os arquivos com os dados atualizados.
+    </p>
+
+    <div class="d-flex gap-3">
+      <a href="<%= pedidos_relatorios_path(format: :csv) %>" class="btn btn-success btn-lg shadow-sm" role="button">
+        <i class="fas fa-file-csv me-2"></i> Relatório de Pedidos
+      </a>
+      <a href="<%= mesas_pessoas_relatorios_path(format: :csv) %>" class="btn btn-primary btn-lg shadow-sm" role="button">
+        <i class="fas fa-file-csv me-2"></i> Relatório de Mesas/Pessoas
+      </a>
+    </div>
+
+  </div>
+</div>

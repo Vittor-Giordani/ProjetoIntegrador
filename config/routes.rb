@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'relatorios/index'
+  get 'mesas/index'
+  get 'mesas/new'
+  get 'mesas/edit'
   root "sessions#new"
 
   get "login",  to: "sessions#new"
@@ -12,11 +16,18 @@ Rails.application.routes.draw do
 
   get "dashboard/produtos", to: "dashboard#produtos"
 
+  get 'dashboard/mesas', to: 'mesas#index'
+  resources :mesas
+
+  resources :relatorios, only: [:index] do
+  collection do
+    get :pedidos, defaults: { format: :csv }
+    get :mesas_pessoas, defaults: { format: :csv }
+  end
+end
+
   resources :products
   resources :produtos, controller: "products" 
 
   get 'produtos.html', to: "dashboard#produtos"
-  get "dashboard/charts.html", to: "dashboard#charts"
-  #get "dashboard/layoutstatic.html", to: "dashboard#layoutstatic"
-  #get "dashboard/layoutsidenavlight.html", to: "dashboard#layoutsidenavlight"
 end

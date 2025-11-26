@@ -29,7 +29,7 @@ end
   def destroy
   @product.destroy  
   flash[:notice] = "Excluído!"
-  redirect_to dashboard_produtos_path  # Mudei de products_path para dashboard_produtos_path
+  redirect_to dashboard_produtos_path 
 end
 
 

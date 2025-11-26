@@ -1,5 +1,5 @@
 <div class="container mt-4">
-  <h3>Editar Produto</h3>  <!-- Mudei de "Novo Produto" para "Editar Produto" -->
+  <h3>Editar Produto</h3>
 
   <div class="card shadow-sm mt-3">
     <div class="card-body">
@@ -37,8 +37,8 @@
           <%= f.select :status, ["ativo", "inativo"], {}, class: "form-select" %>
         </div>
 
-        <%= f.submit "Salvar Alterações", class: "btn btn-success" %>  <!-- Mudei o texto do botão -->
         <%= link_to "Voltar", dashboard_produtos_path, class: "btn btn-secondary ms-2" %>  <!-- Link para voltar ao dashboard/produtos -->
+        <%= f.submit "Salvar Alterações", class: "btn btn-success" %>  <!-- Mudei o texto do botão -->
       <% end %>
 
     </div>

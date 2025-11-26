@@ -1,0 +1,35 @@
+<%= form_with(model: @mesa, local: true) do |f| %>
+  <% if @mesa.errors.any? %>
+    <div class="alert alert-danger">
+      <h5><%= pluralize(@mesa.errors.count, "erro") %> impediram o salvamento:</h5>
+      <ul>
+        <% @mesa.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :codigo_mesa, "Código da Mesa" %>
+    <%= f.text_field :codigo_mesa, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :numero, "Número da Mesa" %>
+    <%= f.number_field :numero, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :quant_pessoas, "Capacidade (nº pessoas)" %>
+    <%= f.number_field :quant_pessoas, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :status %>
+    <%= f.select :status, (defined?(@statuses) ? @statuses : ["Livre", "Reservado", "Ocupado"]), {}, class: "form-select" %>
+  </div>
+
+  <%= f.submit "Salvar", class: "btn btn-success" %>
+  <%= link_to "Voltar", mesas_path, class: "btn btn-secondary ms-2" %>
+<% end %>
