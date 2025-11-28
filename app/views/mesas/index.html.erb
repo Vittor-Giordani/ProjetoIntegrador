@@ -27,13 +27,26 @@
                   <% status_class = case m.status.to_s.downcase
                      when "livre" then "badge bg-success"
                      when "reservado" then "badge bg-warning"
+                     when "ocupado" then "badge bg-danger"
                      else "badge bg-secondary"
                   end %>
-                  <span class="<%= status_class %>"><%= m.status.capitalize %></span>
+                  <span class="<%= status_class %>"><%= m.status %></span>
                 </td>
                 <td>
-                  <%= link_to "Editar", edit_mesa_path(m), class: "btn btn-sm btn-warning" %>
-                  <%= button_to "Excluir", mesa_path(m), method: :delete, data: {confirm: "Tem certeza?"}, class: "btn btn-sm btn-danger" %>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <div class="btn-group btn-group-sm" role="group">
+                  <%= link_to "Pedidos", mesa_pedidos_path(m), class: "btn btn-info" %>
+                  <%= link_to "Editar", edit_mesa_path(m), class: "btn btn-warning" %>
+    
+                  <% if m.status == 'Ocupado' %>
+                  <%= link_to "Fechar", fechar_conta_mesa_path(m), class: "btn btn-success" %>
+                   <% end %>
+    
+                   <%= button_to "Excluir", mesa_path(m), method: :delete, 
+                  class: "btn btn-danger", 
+                  data: { turbo_confirm: "Tem certeza que deseja excluir a mesa #{m.numero}?" } %>
+                        </div>
+                  </div>
                 </td>
               </tr>
             <% end %>

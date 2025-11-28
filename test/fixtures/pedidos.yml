@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  data_hora: 2025-11-27 02:35:24
+  status: MyString
+  codigo_garcom: 1
+  codigo_mesa: 1
+
+two:
+  data_hora: 2025-11-27 02:35:24
+  status: MyString
+  codigo_garcom: 1
+  codigo_mesa: 1

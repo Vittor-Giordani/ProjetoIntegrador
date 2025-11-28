@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  total: 1.5
+  status: MyString
+  data_hora_inicio: 2025-11-27 02:36:21
+  data_hora_final: 2025-11-27 02:36:21
+  codigo_mesa: 1
+  codigo_caixa: 1
+
+two:
+  total: 1.5
+  status: MyString
+  data_hora_inicio: 2025-11-27 02:36:21
+  data_hora_final: 2025-11-27 02:36:21
+  codigo_mesa: 1
+  codigo_caixa: 1
