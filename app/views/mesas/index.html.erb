@@ -4,6 +4,19 @@
     <a href="<%= new_mesa_path %>" class="btn btn-primary">+ Nova Mesa</a>
   </div>
 
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <%= link_to "Mesas Ativas (#{Mesa.ativas.count})", 
+                  mesas_path, 
+                  class: "nav-link #{'active' unless params[:inativas]}" %>
+    </li>
+    <li class="nav-item">
+      <%= link_to "Mesas Inativas (#{Mesa.inativas.count})", 
+                  mesas_path(inativas: true), 
+                  class: "nav-link #{'active' if params[:inativas]}" %>
+    </li>
+  </ul>
+
   <div class="card shadow-sm">
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -19,7 +32,7 @@
           </thead>
           <tbody>
             <% @mesas.each do |m| %>
-              <tr>
+              <tr class="<%= 'table-secondary' unless m.ativo? %>">
                 <td><%= m.codigo_mesa %></td>
                 <td><%= m.numero %></td>
                 <td><%= "#{m.quant_pessoas} pessoas" %></td>
@@ -31,21 +44,33 @@
                      else "badge bg-secondary"
                   end %>
                   <span class="<%= status_class %>"><%= m.status %></span>
+                  
+                  <% if m.ativo? %>
+                    <span class="badge bg-success">Ativa</span>
+                  <% else %>
+                    <span class="badge bg-secondary">Inativa</span>
+                  <% end %>
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm" role="group">
-                    <div class="btn-group btn-group-sm" role="group">
-                  <%= link_to "Pedidos", mesa_pedidos_path(m), class: "btn btn-info" %>
-                  <%= link_to "Editar", edit_mesa_path(m), class: "btn btn-warning" %>
-    
-                  <% if m.status == 'Ocupado' %>
-                  <%= link_to "Fechar", fechar_conta_mesa_path(m), class: "btn btn-success" %>
-                   <% end %>
-    
-                   <%= button_to "Excluir", mesa_path(m), method: :delete, 
-                  class: "btn btn-danger", 
-                  data: { turbo_confirm: "Tem certeza que deseja excluir a mesa #{m.numero}?" } %>
-                        </div>
+                    <% if m.ativo? %>
+                      <%= link_to "Pedidos", mesa_pedidos_path(m), class: "btn btn-info" %>
+                      <%= link_to "Editar", edit_mesa_path(m), class: "btn btn-warning" %>
+                      
+                      <% if m.status == 'Ocupado' %>
+                        <%= link_to "Fechar", fechar_conta_mesa_path(m), class: "btn btn-success" %>
+                      <% end %>
+                      
+                      <%= button_to "Inativar", mesa_path(m), method: :delete, 
+                                    class: "btn btn-outline-danger", 
+                                    data: { turbo_confirm: "Deseja inativar a mesa #{m.numero}?" } %>
+                    <% else %>
+                      <!-- Ações para mesas inativas -->
+                      <%= button_to "Reativar", reativar_mesa_path(m), method: :post,
+                                    class: "btn btn-success",
+                                    data: { turbo_confirm: "Deseja reativar a mesa #{m.numero}?" } %>
+                      <%= link_to "Ver Detalhes", edit_mesa_path(m), class: "btn btn-outline-info" %>
+                    <% end %>
                   </div>
                 </td>
               </tr>

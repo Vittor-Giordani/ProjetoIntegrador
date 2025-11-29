@@ -9,6 +9,7 @@ class ProductsController < ApplicationController
     @product = Produto.new(product_params)
 
     if @product.save
+      log_criacao(@product) 
       redirect_to dashboard_produtos_path, notice: "Produto cadastrado!"
     else
       flash.now[:alert] = "Erro ao salvar."
@@ -19,19 +20,20 @@ class ProductsController < ApplicationController
   def edit; end
 
   def update
-  if @product.update(product_params)
-    redirect_to dashboard_produtos_path, notice: "Produto atualizado!"
-  else
-    render :edit
+    if @product.update(product_params)
+      log_edicao(@product)
+      redirect_to dashboard_produtos_path, notice: "Produto atualizado!"
+    else
+      render :edit
+    end
   end
-end
 
   def destroy
-  @product.destroy  
-  flash[:notice] = "Excluído!"
-  redirect_to dashboard_produtos_path 
-end
-
+    @product.destroy
+    log_exclusao(@product)
+    flash[:notice] = "Excluído!"
+    redirect_to dashboard_produtos_path 
+  end
 
   private
 

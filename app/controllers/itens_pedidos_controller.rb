@@ -4,9 +4,11 @@ class ItensPedidosController < ApplicationController
 
   def destroy
     mesa = @item_pedido.pedido.mesa
+    produto = @item_pedido.produto
     @item_pedido.destroy
     
-    # Se não há mais itens no pedido, volta o status para "Livre"
+    log_remocao_produto(mesa, produto) 
+    
     if @item_pedido.pedido.itens_pedidos.empty?
       mesa.update(status: 'Livre')
     end

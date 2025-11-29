@@ -6,10 +6,9 @@
     </h2>
     <div>
       <%= link_to "Voltar para Mesas", mesas_path, class: "btn btn-secondary me-2" %>
-      <% if @pedido.itens_pedidos.any? %>
-        <%= button_to "Fechar Conta", fechar_conta_mesa_path(@mesa), method: :post, 
-                      class: "btn btn-success", 
-                      data: { turbo_confirm: "Fechar conta da mesa #{@mesa.numero}?" } %>
+      <!-- BOTÃO FECHAR CONTA APENAS AQUI NO HEADER -->
+      <% if @mesa.status == 'Ocupado' && @pedido.itens_pedidos.any? %>
+        <%= link_to "Fechar Conta", fechar_conta_mesa_path(@mesa), class: "btn btn-success" %>
       <% end %>
     </div>
   </div>

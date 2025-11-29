@@ -7,7 +7,7 @@
         <meta name="description" content="" />
         <meta name="author" content="" />
         <link href="css/styles.css" rel="stylesheet" />
-        <link rel="icon" type="image/png" href="<%= asset_path('logo.png') %>">
+        <link rel="icon" type="image/png" href="<%= asset_path('vinmo logo.png') %>">
         <title>Vinmo</title>
 
         <%= stylesheet_link_tag "styles", "auth","application", "data-turbo-track": "reload" %>
@@ -20,7 +20,7 @@
 
     <body class="sb-nav-fixed">
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-            <a class="navbar-brand ps-3" href="">Vinmo</a>
+            <a class="navbar-brand ps-3" href="<%= dashboard_path %>">Vinmo</a>
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
             <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
                 <div class="input-group">
@@ -32,45 +32,56 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!">Settings</a></li>
-                        <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                        <li><a class="dropdown-item" href="#!">Configurações</a></li>
+                        <li><a class="dropdown-item" href="#!">Log de Atividades</a></li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="#!">Logout</a></li>
+                        <li>
+                            <%= link_to "Sair", logout_path, method: :delete, class: "dropdown-item" %>
+                        </li>
                     </ul>
                 </li>
             </ul>
         </nav>
-        <div id="layoutSidenav" href="<%= dashboard_path %>">
+        <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <div class="sb-sidenav-menu-heading">Ações</div>
                             <a class="nav-link" href="<%= mesas_path %>">
-                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                                 Mesas
+                            </a>                         
+                            <a class="nav-link" href="<%= dashboard_produtos_path %>">
+                                <div class="sb-nav-link-icon"><i class="fas fa-utensils"></i></div>
+                                Produtos
                             </a>
                             <a class="nav-link" href="<%= relatorios_path %>">
-                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
                                 Relatórios
-                            </a>
-                                <a class="nav-link" href="<%= dashboard_produtos_path %>">
-                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Produtos
+                            </a>                          
+                            <a class="nav-link" href="<%= logs_path %>">
+                                <div class="sb-nav-link-icon"><i class="fas fa-history"></i></div>
+                                Logs do Sistema
                             </a>
                         </div>
                     </div>
                     <div class="sidebar-footer p-3">
-                <small class="text-light">
-                   Logado como:<br>
-               <strong><%= @usuario_logado&.email || "Desconhecido" %></strong>
-                 </small>
+                        <small class="text-light">
+                            Logado como:<br>
+                            <strong><%= @usuario_logado&.email || "Desconhecido" %></strong>
+                        </small>
                     </div>
                 </nav>
             </div>
-        <main>
-            <%= yield %>
-        </main>
-    </div>
-  </body>
+            
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <%= yield %>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </body>
 </html>

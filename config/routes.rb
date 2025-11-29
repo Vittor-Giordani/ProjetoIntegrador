@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   member do
     get :fechar_conta  
     post :fechar_conta
+    post :reativar
   end
   resources :pedidos, only: [:index, :create], controller: 'pedidos'
 end
@@ -34,6 +35,7 @@ end
 
   resources :products
   resources :produtos, controller: "products" 
+  resources :logs, only: [:index]
   
   resources :itens_pedidos, only: [:destroy], as: 'itens_pedidos'
 

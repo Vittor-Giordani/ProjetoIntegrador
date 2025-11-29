@@ -1,8 +1,56 @@
 <div class="container mt-4">
-  <h3>Editar Mesa</h3>
-  <div class="card shadow-sm mt-3">
-    <div class="card-body">
-      <%= render 'form' %>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-edit me-2"></i>
+            Editar Mesa
+          </h4>
+        </div>
+        
+        <div class="card-body">
+          <%= form_with model: @mesa do |form| %>
+            <div class="mb-3">
+              <%= form.label :codigo_mesa, "Código da Mesa", class: "form-label fw-bold" %>
+              <%= form.number_field :codigo_mesa, class: "form-control", required: true %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :numero, "Número da Mesa", class: "form-label fw-bold" %>
+              <%= form.number_field :numero, class: "form-control", required: true %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :quant_pessoas, "Capacidade (nº de pessoas)", class: "form-label fw-bold" %>
+              <%= form.number_field :quant_pessoas, class: "form-control", required: true, min: 1 %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :status, "Status", class: "form-label fw-bold" %>
+              <%= form.select :status, options_for_select(@statuses, @mesa.status), 
+                            { include_blank: "Selecione o status..." }, 
+                            { class: "form-select", required: true } %>
+            </div>
+
+            <div class="mb-4">
+              <%= form.label :ativo, "Status da Mesa", class: "form-label fw-bold" %>
+              <div class="form-check">
+                <%= form.check_box :ativo, class: "form-check-input" %>
+                <%= form.label :ativo, "Mesa Ativa", class: "form-check-label" %>
+              </div>
+              <small class="form-text text-muted">
+                Mesas inativas não aparecem na listagem principal, mas mantêm seus históricos.
+              </small>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <%= link_to "Voltar", mesas_path, class: "btn btn-secondary me-md-2" %>
+              <%= form.submit "Salvar", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </div>

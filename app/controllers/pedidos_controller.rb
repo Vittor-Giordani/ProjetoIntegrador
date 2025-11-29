@@ -18,6 +18,9 @@ class PedidosController < ApplicationController
     end
 
     if @pedido.adicionar_produto(produto_id, quantidade)
+      produto = Produto.find(produto_id)
+      log_adicao_produto(@mesa, produto, quantidade) 
+      
       @mesa.update(status: 'Ocupado') if @mesa.status != 'Ocupado'
       redirect_to mesa_pedidos_path(@mesa), notice: 'Produto adicionado com sucesso!'
     else

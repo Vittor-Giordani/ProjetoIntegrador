@@ -1,0 +1,117 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>
+      <i class="fas fa-history me-2"></i>
+      Logs do Sistema
+    </h3>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Data/Hora</th>
+              <th>Usuário</th>
+              <th>Ação</th>
+              <th>Detalhes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @logs.any? %>
+              <% @logs.each do |log| %>
+                <tr>
+                  <td>
+                    <small class="text-muted">
+                      <%= l(log.data_acao, format: :short) %>
+                    </small>
+                  </td>
+                  <td>
+                    <code><%= log.email %></code>
+                  </td>
+                  <td>
+                    <strong><%= log.acao %></strong>
+                  </td>
+                  <td>
+                    <%= log.detalhes %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="4" class="text-center py-4">
+                  <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">Nenhum log encontrado.</p>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  <% if @logs.total_pages > 1 %>
+    <div class="d-flex justify-content-center mt-4">
+      <nav>
+        <ul class="pagination">
+          <% if @logs.prev_page %>
+            <li class="page-item">
+              <%= link_to "Anterior", logs_path(page: @logs.prev_page), class: "page-link" %>
+            </li>
+          <% end %>
+
+          <% (@logs.total_pages).times do |page| %>
+            <li class="page-item <%= 'active' if @logs.current_page == page + 1 %>">
+              <%= link_to page + 1, logs_path(page: page + 1), class: "page-link" %>
+            </li>
+          <% end %>
+
+          <% if @logs.next_page %>
+            <li class="page-item">
+              <%= link_to "Próxima", logs_path(page: @logs.next_page), class: "page-link" %>
+            </li>
+          <% end %>
+        </ul>
+      </nav>
+    </div>
+  <% end %>
+
+  <!-- Estatísticas -->
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h5 class="card-title"><%= Log.count %></h5>
+          <p class="card-text">Total de Logs</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title"><%= Log.where("data_acao >= ?", Date.today).count %></h5>
+          <p class="card-text">Hoje</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-warning">
+        <div class="card-body">
+          <h5 class="card-title"><%= Log.distinct.count(:email) %></h5>
+          <p class="card-text">Usuários Únicos</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h5 class="card-title"><%= Log.distinct.count(:acao) %></h5>
+          <p class="card-text">Tipos de Ação</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
