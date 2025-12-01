@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   get "dashboard", to: "dashboard#index"
   get "dashboard/produtos", to: "dashboard#produtos"
   get 'dashboard/mesas', to: 'mesas#index'
+  delete "logout", to: "sessions#destroy"
 
   
   resources :mesas do
@@ -39,5 +40,4 @@ end
   
   resources :itens_pedidos, only: [:destroy], as: 'itens_pedidos'
 
-  get 'produtos.html', to: "dashboard#produtos"
 end

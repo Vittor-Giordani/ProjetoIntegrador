@@ -5,7 +5,6 @@
     <div class="card-body">
 
       <%= form_with(model: @product, url: product_path(@product), method: :patch, local: true) do |f| %>
-        <!-- Adicionei tratamento de erros (igual ao padrão Rails) -->
         <% if @product.errors.any? %>
           <div class="alert alert-danger">
             <h5><%= pluralize(@product.errors.count, "erro") %> impediram a atualização:</h5>
@@ -37,8 +36,8 @@
           <%= f.select :status, ["ativo", "inativo"], {}, class: "form-select" %>
         </div>
 
-        <%= link_to "Voltar", dashboard_produtos_path, class: "btn btn-secondary ms-2" %>  <!-- Link para voltar ao dashboard/produtos -->
-        <%= f.submit "Salvar Alterações", class: "btn btn-success" %>  <!-- Mudei o texto do botão -->
+        <%= link_to "Voltar", dashboard_produtos_path, class: "btn btn-secondary ms-2" %>
+        <%= f.submit "Salvar Alterações", class: "btn btn-success" %>
       <% end %>
 
     </div>

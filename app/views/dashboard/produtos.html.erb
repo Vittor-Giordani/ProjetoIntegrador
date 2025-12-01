@@ -1,21 +1,25 @@
 <div class="container-fluid mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Produtos</h3>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">
+      <i class="fas fa-utensils me-2"></i>
+      Produtos
+    </h3>
 
     <div>
-      <a href="<%= new_product_path %>" class="btn btn-success shadow-sm">
-        + Cadastrar Produto
-      </a>
+      <%= link_to new_product_path, class: "btn btn-success shadow-sm me-2" do %>
+        <i class="fas fa-plus-circle me-1"></i>
+        Cadastrar Produto
+      <% end %>
 
-      <button class="btn btn-primary shadow-sm" onclick="window.location.reload();">
-        Atualizar Lista
+      <button class="btn btn-outline-primary shadow-sm" onclick="window.location.reload();">
+        <i class="fas fa-sync-alt me-1"></i>
+        Atualizar
       </button>
     </div>
   </div>
 
   <div class="card shadow-sm">
     <div class="card-body p-0">
-
       <div class="table-responsive">
         <table class="table table-hover table-striped mb-0">
           <thead class="table-dark">
@@ -25,50 +29,53 @@
               <th>Tipo</th>
               <th class="text-center">Valor</th>
               <th class="text-center">Status</th>
-              <th class="text-center">Ações</th>
+              <th class="text-center" style="width: 180px;">Ações</th>
             </tr>
           </thead>
 
           <tbody>
             <% @produtos.each do |p| %>
               <tr>
-                <td class="text-center"><%= p.codigo_produto %></td>
+                <td class="text-center"><strong><%= p.codigo_produto %></strong></td>
                 <td><%= p.nome %></td>
                 <td><%= p.tipo %></td>
-                <td class="text-center">R$ <%= p.valor %></td>
+                <td class="text-center">
+                  <span class="fw-bold text-success">R$ <%= number_with_precision(p.valor, precision: 2) %></span>
+                </td>
 
                 <td class="text-center">
                   <% if p.status.to_s.strip.downcase == "ativo" %>
-                    <span class="badge bg-success">Ativo</span>
+                    <span class="badge bg-success rounded-pill px-3">Ativo</span>
                   <% else %>
-                    <span class="badge bg-secondary">Inativo</span>
+                    <span class="badge bg-secondary rounded-pill px-3">Inativo</span>
                   <% end %>
                 </td>
 
                 <td class="text-center">
-
-                  <a href="<%= edit_product_path(p) %>" class="btn btn-sm btn-warning">
-                    Editar
-                  </a>
-
-                  <%= button_to "Excluir" ,
-                      product_path(p),
-                      method: :delete,
-                      data: { confirm: "Tem certeza que deseja excluir este produto?" },
-                      class: "btn btn-sm btn-danger" %>
-
+                  <div class="d-flex justify-content-center gap-2">
+                    <%= link_to edit_product_path(p), class: "btn btn-sm btn-warning", title: "Editar produto" do %>
+                      <i class="fas fa-edit me-1"></i>
+                      Editar
+                    <% end %>
+                    
+                    <%= button_to product_path(p),
+                        method: :delete,
+                        class: "btn btn-sm btn-danger",
+                        title: "Excluir produto",
+                        data: { 
+                          turbo_confirm: "Tem certeza que deseja excluir o produto '#{p.nome}'?",
+                          turbo_frame: "_top"
+                        } do %>
+                      <i class="fas fa-trash-alt me-1"></i>
+                      Excluir
+                    <% end %>
+                  </div>
                 </td>
-
               </tr>
             <% end %>
           </tbody>
-
         </table>
       </div>
-
     </div>
   </div>
-
 </div>
-
-

@@ -6,61 +6,131 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <link href="css/styles.css" rel="stylesheet" />
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        
+        <%= stylesheet_link_tag "search", "data-turbo-track": "reload" %>
+        
         <link rel="icon" type="image/png" href="<%= asset_path('vinmo logo.png') %>">
         <title>Vinmo</title>
 
         <%= stylesheet_link_tag "styles", "auth","application", "data-turbo-track": "reload" %>
+        <%= javascript_include_tag "search", "data-turbo-track": "reload", defer: true %>
         <%= javascript_include_tag "scripts", "data-turbo-track": "reload", defer: true %>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>
 
     <body class="sb-nav-fixed">
+        <% if flash[:notice] || flash[:alert] %>
+          <div class="container-fluid mt-3">
+            <div class="row">
+              <div class="col-12">
+                <% if flash[:notice] %>
+                  <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <%= flash[:notice] %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                <% end %>
+                
+                <% if flash[:alert] %>
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <%= flash[:alert] %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <a class="navbar-brand ps-3" href="<%= dashboard_path %>">Vinmo</a>
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0 search-container">
                 <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                    <input class="form-control" 
+                           type="text" 
+                           id="sidebarSearch"
+                           placeholder="Buscar no menu..." 
+                           aria-label="Buscar no menu" 
+                           aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="search-clear-btn" id="clearSearch" type="button" aria-label="Limpar busca">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </form>
+            
             <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-user fa-fw"></i>
+                      <span class="d-none d-md-inline ms-1"><%= @usuario_logado&.email&.split('@')&.first || "Usuário" %></span>
+                    </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#!">Configurações</a></li>
-                        <li><a class="dropdown-item" href="#!">Log de Atividades</a></li>
+                        <li><a class="dropdown-item" href="#!">
+                          <i class="fas fa-cog me-2"></i>Configurações
+                        </a></li>
+                        <li><a class="dropdown-item" href="<%= logs_path %>">
+                          <i class="fas fa-history me-2"></i>Log de Atividades
+                        </a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li>
-                            <%= link_to "Sair", logout_path, method: :delete, class: "dropdown-item" %>
+                          <%= button_to logout_path, 
+                                method: :delete, 
+                                class: "dropdown-item text-start border-0 bg-transparent w-100",
+                                form: { class: "d-inline" } do %>
+                            <i class="fas fa-sign-out-alt me-2"></i>Sair
+                          <% end %>
                         </li>
                     </ul>
                 </li>
             </ul>
         </nav>
+        
         <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                     <div class="sb-sidenav-menu">
                         <div class="nav">
-                            <div class="sb-sidenav-menu-heading">Ações</div>
-                            <a class="nav-link" href="<%= mesas_path %>">
+                            <div class="p-3 d-md-none">
+                                <div class="input-group">
+                                    <input class="form-control" 
+                                           type="text" 
+                                           id="sidebarSearchMobile"
+                                           placeholder="Buscar no menu..." 
+                                           aria-label="Buscar no menu" />
+                                    <button class="btn btn-outline-light" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="sb-sidenav-menu-heading">Menu Principal</div>
+                            <a class="nav-link" href="<%= mesas_path %>" data-search="mesas mesa tabelas lugares assentos">
                                 <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
                                 Mesas
-                            </a>                         
-                            <a class="nav-link" href="<%= dashboard_produtos_path %>">
+                            </a>
+                            
+                            <a class="nav-link" href="<%= dashboard_produtos_path %>" data-search="produtos produto cardapio comida bebida item">
                                 <div class="sb-nav-link-icon"><i class="fas fa-utensils"></i></div>
                                 Produtos
                             </a>
-                            <a class="nav-link" href="<%= relatorios_path %>">
+                            
+                            <a class="nav-link" href="<%= relatorios_path %>" data-search="relatorios relatório relatorio relatórios report reports gráficos estatisticas">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
                                 Relatórios
-                            </a>                          
-                            <a class="nav-link" href="<%= logs_path %>">
+                            </a>
+                            
+                            <a class="nav-link" href="<%= logs_path %>" data-search="logs log historico histórico atividade atividades registros auditoria">
                                 <div class="sb-nav-link-icon"><i class="fas fa-history"></i></div>
                                 Logs do Sistema
                             </a>
