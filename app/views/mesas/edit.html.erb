@@ -1,56 +1,238 @@
-<div class="container mt-4">
+<div class="container-fluid py-4">
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">
-            <i class="fas fa-edit me-2"></i>
-            Editar Mesa
-          </h4>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-warning text-white py-3">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-edit fa-lg me-3"></i>
+            <div>
+              <h4 class="mb-0">Editar Mesa</h4>
+              <small class="opacity-75">Atualize as informações da mesa</small>
+            </div>
+          </div>
         </div>
         
-        <div class="card-body">
-          <%= form_with model: @mesa do |form| %>
-            <div class="mb-3">
-              <%= form.label :codigo_mesa, "Código da Mesa", class: "form-label fw-bold" %>
-              <%= form.number_field :codigo_mesa, class: "form-control", required: true %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :numero, "Número da Mesa", class: "form-label fw-bold" %>
-              <%= form.number_field :numero, class: "form-control", required: true %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :quant_pessoas, "Capacidade (nº de pessoas)", class: "form-label fw-bold" %>
-              <%= form.number_field :quant_pessoas, class: "form-control", required: true, min: 1 %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :status, "Status", class: "form-label fw-bold" %>
-              <%= form.select :status, options_for_select(@statuses, @mesa.status), 
-                            { include_blank: "Selecione o status..." }, 
-                            { class: "form-select", required: true } %>
-            </div>
-
-            <div class="mb-4">
-              <%= form.label :ativo, "Status da Mesa", class: "form-label fw-bold" %>
-              <div class="form-check">
-                <%= form.check_box :ativo, class: "form-check-input" %>
-                <%= form.label :ativo, "Mesa Ativa", class: "form-check-label" %>
+        <div class="card-body p-4">
+          <%= form_with model: @mesa, local: true, class: "needs-validation", novalidate: true do |form| %>
+            <% if @mesa.errors.any? %>
+              <div class="alert alert-danger mb-4">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <h6 class="mb-0"><%= pluralize(@mesa.errors.count, "erro") %> impediram a atualização:</h6>
+                </div>
+                <ul class="mb-0 ps-3">
+                  <% @mesa.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
               </div>
-              <small class="form-text text-muted">
-                Mesas inativas não aparecem na listagem principal, mas mantêm seus históricos.
-              </small>
+            <% end %>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :codigo_mesa, "Código da Mesa", class: "form-label fw-bold" %>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-hashtag"></i>
+                  </span>
+                  <%= form.number_field :codigo_mesa, 
+                      class: "form-control form-control-lg", 
+                      required: true,
+                      readonly: true,
+                      disabled: true %>
+                </div>
+                <small class="form-text text-muted">
+                  Código gerado automaticamente pelo sistema
+                </small>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <%= form.label :numero, "Número da Mesa", class: "form-label fw-bold" %>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-chair"></i>
+                  </span>
+                  <%= form.number_field :numero, 
+                      class: "form-control form-control-lg", 
+                      required: true,
+                      min: 1,
+                      placeholder: "Ex: 1, 2, 3..." %>
+                </div>
+                <small class="form-text text-muted">
+                  Número visível para os clientes
+                </small>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <%= form.label :quant_pessoas, "Capacidade", class: "form-label fw-bold" %>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-users"></i>
+                  </span>
+                  <%= form.number_field :quant_pessoas, 
+                      class: "form-control form-control-lg", 
+                      required: true, 
+                      min: 1,
+                      max: 20,
+                      placeholder: "Ex: 4, 6, 8..." %>
+                  <span class="input-group-text">pessoa(s)</span>
+                </div>
+                <small class="form-text text-muted">
+                  Número máximo de pessoas na mesa
+                </small>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <%= form.label :status, "Status", class: "form-label fw-bold" %>
+                <% 
+                  # Define os status com fallback
+                  status_options = @statuses || [
+                    ['Livre', 'livre'],
+                    ['Ocupada', 'ocupada'],
+                    ['Reservada', 'reservada']
+                  ]
+                %>
+                <div class="input-group">
+                  <span class="input-group-text bg-light">
+                    <i class="fas fa-circle"></i>
+                  </span>
+                  <%= form.select :status, 
+                      options_for_select(status_options, @mesa.status), 
+                      { include_blank: "Selecione o status..." }, 
+                      { class: "form-select form-select-lg", required: true } %>
+                </div>
+                <small class="form-text text-muted">
+                  Status atual da mesa
+                </small>
+              </div>
+
+              <div class="col-md-12 mb-4">
+                <%= form.label :ativo, "Situação da Mesa", class: "form-label fw-bold d-block mb-3" %>
+                <div class="form-check form-switch">
+                  <%= form.check_box :ativo, class: "form-check-input", role: "switch" %>
+                  <%= form.label :ativo, class: "form-check-label fw-semibold" do %>
+                    <% if @mesa.ativo %>
+                      <span class="text-success">
+                        <i class="fas fa-check-circle me-1"></i> Mesa Ativa
+                      </span>
+                    <% else %>
+                      <span class="text-danger">
+                        <i class="fas fa-times-circle me-1"></i> Mesa Inativa
+                      </span>
+                    <% end %>
+                  <% end %>
+                </div>
+                <small class="form-text text-muted mt-2">
+                  <% if @mesa.ativo %>
+                    <i class="fas fa-info-circle text-success me-1"></i>
+                    Mesa visível na listagem principal e disponível para pedidos.
+                  <% else %>
+                    <i class="fas fa-info-circle text-warning me-1"></i>
+                    Mesa não aparece na listagem principal, mas mantém seu histórico.
+                  <% end %>
+                </small>
+              </div>
             </div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <%= link_to "Voltar", mesas_path, class: "btn btn-secondary me-md-2" %>
-              <%= form.submit "Salvar", class: "btn btn-primary" %>
+            <div class="alert alert-info mt-3">
+              <div class="d-flex">
+                <i class="fas fa-info-circle me-3 mt-1"></i>
+                <div>
+                  <strong>Informações importantes:</strong>
+                  <ul class="mb-0 mt-2">
+                    <li>Código da mesa não pode ser alterado</li>
+                    <li>Alterar o número pode afetar a identificação para os clientes</li>
+                    <li>Mesas com pedidos ativos não podem ser desativadas</li>
+                    <li>O status será atualizado automaticamente ao criar pedidos</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between pt-4 border-top">
+              <%= link_to mesas_path, class: "btn btn-outline-secondary btn-lg px-4" do %>
+                <i class="fas fa-arrow-left me-2"></i> Voltar
+              <% end %>
+              
+              <div>
+                <%= link_to "Ver Pedidos", mesa_pedidos_path(@mesa), class: "btn btn-outline-primary btn-lg me-2" %>
+                <%= form.button type: "submit", class: "btn btn-warning btn-lg px-5" do %>
+                  <i class="fas fa-save me-2"></i> Salvar Alterações
+                <% end %>
+              </div>
             </div>
           <% end %>
+        </div>
+      </div>
+    
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .form-select-lg {
+    padding: 0.75rem 2.25rem 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .form-check-input:checked {
+    background-color: #ffc107;
+    border-color: #ffc107;
+  }
+  
+  .form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+  }
+  
+  .form-switch .form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+  }
+  
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .border-top {
+    border-top: 1px solid #dee2e6 !important;
+  }
+  
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+  }
+  
+  .icon-stat {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+  }
+  
+  .btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+  }
+  
+  .btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #212529;
+  }
+</style>

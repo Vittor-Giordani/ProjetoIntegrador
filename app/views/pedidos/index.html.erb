@@ -1,99 +1,651 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>
-      <i class="fas fa-utensils me-2"></i>
-      Pedidos - Mesa <%= @mesa.numero %>
-    </h2>
-    <div>
-      <%= link_to "Voltar para Mesas", mesas_path, class: "btn btn-secondary me-2" %>
-      <!-- BOTÃO FECHAR CONTA APENAS AQUI NO HEADER -->
-      <% if @mesa.status == 'Ocupado' && @pedido.itens_pedidos.any? %>
-        <%= link_to "Fechar Conta", fechar_conta_mesa_path(@mesa), class: "btn btn-success" %>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">
-        <i class="fas fa-plus-circle me-2"></i>
-        Adicionar Produto
-      </h5>
-    </div>
-    <div class="card-body">
-      <%= form_with url: mesa_pedidos_path(@mesa), method: :post do |form| %>
-        <div class="row g-3 align-items-end">
-          <div class="col-md-6">
-            <%= form.label :produto_id, "Produto", class: "form-label fw-bold" %>
-            <%= form.collection_select :produto_id, @produtos, :codigo_produto, :nome, 
-                                      { include_blank: "Selecione um produto..." }, 
-                                      { class: "form-select", required: true } %>
-          </div>
-          <div class="col-md-3">
-            <%= form.label :quantidade, "Quantidade", class: "form-label fw-bold" %>
-            <%= form.number_field :quantidade, value: 1, min: 1, class: "form-control" %>
-          </div>
-          <div class="col-md-3">
-            <%= form.submit "Adicionar", class: "btn btn-primary w-100" %>
+<div class="container-fluid py-4">
+  <!-- Cabeçalho -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <!-- Botão Voltar para Mesas -->
+          <%= link_to mesas_path, class: "btn btn-outline-secondary d-flex align-items-center gap-2" do %>
+            <i class="fas fa-arrow-left"></i>
+            Voltar para Mesas
+          <% end %>
+          
+          <div>
+            <h1 class="h3 mb-0 text-dark">
+              <i class="fas fa-utensils text-primary me-2"></i>
+              Mesa <%= @mesa.numero %>
+            </h1>
+            <p class="text-muted mb-0">
+              <i class="fas fa-info-circle me-1"></i>
+              Gerencie pedidos e fechamento de conta
+            </p>
           </div>
         </div>
-      <% end %>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="badge bg-primary fs-6 px-3 py-2">
+            <i class="fas fa-users me-1"></i>
+            <%= @mesa.quant_pessoas %> pessoa(s)
+          </span>
+          <span class="badge bg-<%= @mesa.status == 'ocupada' ? 'warning' : 'success' %> fs-6 px-3 py-2">
+            <i class="fas fa-<%= @mesa.status == 'ocupada' ? 'clock' : 'check' %> me-1"></i>
+            <%= @mesa.status == 'ocupada' ? 'Ocupada' : 'Livre' %>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Lista de produtos do pedido -->
-  <div class="card">
-    <div class="card-header bg-dark text-white">
-      <h5 class="mb-0">
-        <i class="fas fa-list me-2"></i>
-        Itens do Pedido
-      </h5>
+  <!-- Alertas -->
+  <% if flash[:notice] %>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+          <i class="fas fa-check-circle me-2"></i>
+          <%= flash[:notice] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
     </div>
-    <div class="card-body p-0">
-      <% if @pedido.itens_pedidos.any? %>
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>Produto</th>
-                <th class="text-center">Quantidade</th>
-                <th class="text-end">Valor Unitário</th>
-                <th class="text-end">Subtotal</th>
-                <th class="text-center">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @pedido.itens_pedidos.each do |item| %>
-                <tr>
-                  <td><%= item.produto.nome %></td>
-                  <td class="text-center"><%= item.quantidade %></td>
-                  <td class="text-end">R$ <%= number_with_precision(item.valor_un, precision: 2) %></td>
-                  <td class="text-end">R$ <%= number_with_precision(item.subtotal, precision: 2) %></td>
-                  <td class="text-center">
-                    <%= button_to "Remover", "/itens_pedidos/#{item.id}", 
-                                  method: :delete, 
-                                  class: "btn btn-sm btn-outline-danger",
-                                  data: { turbo_confirm: "Remover #{item.produto.nome} do pedido?" } %>
-                  </td>
-                </tr>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <%= flash[:alert] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Abas de Navegação -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <ul class="nav nav-tabs" id="mesaTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="pedidos-tab" data-bs-toggle="tab" data-bs-target="#pedidos" type="button" role="tab">
+            <i class="fas fa-utensils me-2"></i> Pedidos
+            <% if @pedidos.any? %>
+              <span class="badge bg-primary ms-1"><%= @pedidos.count %></span>
+            <% end %>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="fechar-conta-tab" data-bs-toggle="tab" data-bs-target="#fechar-conta" type="button" role="tab">
+            <i class="fas fa-cash-register me-2"></i> Fechar Conta
+            <% if @pedidos.any? %>
+              <% 
+                total_mesa = 0
+                @pedidos.each do |pedido|
+                  itens = @itens_pedidos.select { |item| item.codigo_pedido == pedido.codigo_pedido }
+                  total_mesa += itens.sum { |item| item.quantidade * item.valor_un }
+                end
+              %>
+              <span class="badge bg-success ms-1">R$ <%= number_to_currency(total_mesa, unit: '', separator: ',', delimiter: '.') %></span>
+            <% end %>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Conteúdo das Abas -->
+  <div class="tab-content" id="mesaTabsContent">
+    <!-- Aba 1: Pedidos -->
+    <div class="tab-pane fade show active" id="pedidos" role="tabpanel">
+      <div class="row">
+        <!-- Coluna Esquerda - Formulários -->
+        <div class="col-lg-6">
+          <!-- Card: Novo Pedido -->
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-primary bg-gradient text-white py-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fas fa-plus-circle me-2"></i>
+                  Novo Pedido
+                </h5>
+                <span class="badge bg-light text-dark">
+                  <%= @pedidos.count %> pedido(s)
+                </span>
+              </div>
+            </div>
+            <div class="card-body">
+              <%= form_with(model: [@mesa, @novo_pedido], url: mesa_pedidos_path(@mesa), local: true, class: "needs-validation", novalidate: true) do |form| %>
+                <div class="mb-3">
+                  <%= form.label :codigo_garcom, "Garçom Responsável", class: "form-label fw-bold" %>
+                  <%= form.select :codigo_garcom, 
+                      options_from_collection_for_select(@garcons, 'codigo_garcom', 'nome'), 
+                      { include_blank: "Selecione um garçom..." }, 
+                      class: "form-select form-select-lg", 
+                      required: true %>
+                  <div class="form-text">Selecione o garçom responsável por atender esta mesa</div>
+                </div>
+                
+                <% if @novo_pedido.respond_to?(:observacoes) %>
+                  <div class="mb-4">
+                    <%= form.label :observacoes, "Observações", class: "form-label fw-bold" %>
+                    <%= form.text_area :observacoes, class: "form-control", rows: 3, placeholder: "Observações do pedido (opcional)..." %>
+                  </div>
+                <% end %>
+
+                <div class="d-grid">
+                  <%= form.button type: "submit", class: "btn btn-primary btn-lg py-3" do %>
+                    <i class="fas fa-save me-2"></i> Criar Pedido
+                  <% end %>
+                </div>
               <% end %>
-            </tbody>
-            <tfoot class="table-dark">
-              <tr>
-                <td colspan="3" class="text-end"><strong>Total Geral:</strong></td>
-                <td class="text-end"><strong>R$ <%= number_with_precision(@pedido.total, precision: 2) %></strong></td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
+            </div>
+          </div>
+
+          <!-- Card: Adicionar Produto a Pedido -->
+          <% if @pedidos.any? %>
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-info bg-gradient text-white py-3">
+                <h5 class="mb-0">
+                  <i class="fas fa-cart-plus me-2"></i>
+                  Adicionar Produto a Pedido
+                </h5>
+              </div>
+              <div class="card-body">
+                <%= form_with(url: itens_pedidos_path, local: true, class: "needs-validation", novalidate: true) do |form| %>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold">Pedido</label>
+                      <select name="item_pedido[codigo_pedido]" class="form-select" required>
+                        <option value="">Selecione um pedido...</option>
+                        <% @pedidos.each do |pedido| %>
+                          <option value="<%= pedido.codigo_pedido %>">
+                            Pedido #<%= pedido.codigo_pedido %> (<%= pedido.data_hora.strftime("%H:%M") %>)
+                          </option>
+                        <% end %>
+                      </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold">Produto</label>
+                      <% if @produtos.any? %>
+                        <select name="item_pedido[codigo_produto]" class="form-select" required>
+                          <option value="">Selecione um produto...</option>
+                          <% @produtos.each do |produto| %>
+                            <option value="<%= produto.codigo_produto %>">
+                              <%= produto.nome %> - R$ <%= number_to_currency(produto.valor, unit: '', separator: ',', delimiter: '.') %>
+                            </option>
+                          <% end %>
+                        </select>
+                      <% else %>
+                        <div class="alert alert-warning py-2">
+                          <i class="fas fa-exclamation-triangle me-2"></i>
+                          Nenhum produto cadastrado. Cadastre produtos primeiro.
+                        </div>
+                      <% end %>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <label class="form-label fw-bold">Quantidade</label>
+                      <input type="number" name="item_pedido[quantidade]" class="form-control" min="1" value="1" required>
+                    </div>
+                  </div>
+                  
+                  <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-info btn-lg py-3" <%= 'disabled' if @produtos.empty? %>>
+                      <i class="fas fa-plus me-2"></i> Adicionar Produto
+                    </button>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         </div>
-      <% else %>
-        <div class="text-center py-5">
-          <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-          <p class="text-muted mb-0">Nenhum produto adicionado ao pedido.</p>
-          <small class="text-muted">Adicione produtos usando o formulário acima.</small>
+
+        <!-- Coluna Direita - Lista de Pedidos -->
+        <div class="col-lg-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-dark bg-gradient text-white py-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fas fa-list me-2"></i>
+                  Pedidos da Mesa
+                </h5>
+                <% if @pedidos.any? %>
+                  <span class="badge bg-light text-dark">
+                    <%= @pedidos.where(status: 'aberto').count %> aberto(s)
+                  </span>
+                <% end %>
+              </div>
+            </div>
+            <div class="card-body">
+              <% if @pedidos.any? %>
+                <div class="accordion" id="pedidosAccordion">
+                  <% @pedidos.each_with_index do |pedido, index| %>
+                    <div class="accordion-item border-0 mb-3">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button <%= index > 0 ? 'collapsed' : '' %> bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#pedido<%= pedido.codigo_pedido %>" aria-expanded="<%= index == 0 %>">
+                          <div class="d-flex justify-content-between w-100 align-items-center">
+                            <div>
+                              <span class="fw-bold">Pedido #<%= pedido.codigo_pedido %></span>
+                              <span class="badge bg-<%= pedido.status == 'fechado' ? 'success' : 'warning' %> ms-2">
+                                <i class="fas fa-<%= pedido.status == 'fechado' ? 'check' : 'clock' %> me-1"></i>
+                                <%= pedido.status %>
+                              </span>
+                            </div>
+                            <div class="text-muted">
+                              <i class="fas fa-clock me-1"></i>
+                              <%= pedido.data_hora.strftime("%H:%M") %>
+                            </div>
+                          </div>
+                        </button>
+                      </h2>
+                      <div id="pedido<%= pedido.codigo_pedido %>" class="accordion-collapse collapse <%= index == 0 ? 'show' : '' %>" data-bs-parent="#pedidosAccordion">
+                        <div class="accordion-body bg-white">
+                          <!-- Informações do pedido -->
+                          <div class="row mb-3">
+                            <div class="col-md-12">
+                              <div class="d-flex align-items-center mb-2">
+                                <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                                  <i class="fas fa-user-tie text-primary"></i>
+                                </div>
+                                <div>
+                                  <small class="text-muted d-block">Garçom</small>
+                                  <span class="fw-semibold">
+                                    <% if pedido.codigo_garcom %>
+                                      <% garcom = Garcon.find_by(codigo_garcom: pedido.codigo_garcom) %>
+                                      <%= garcom&.nome || "Garçom ##{pedido.codigo_garcom}" %>
+                                    <% else %>
+                                      Não atribuído
+                                    <% end %>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Itens do pedido -->
+                          <% itens = @itens_pedidos.select { |item| item.codigo_pedido == pedido.codigo_pedido } %>
+                          <% if itens.any? %>
+                            <div class="table-responsive">
+                              <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                  <tr>
+                                    <th>Produto</th>
+                                    <th class="text-center">Qtd</th>
+                                    <th class="text-end">Valor</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-center">Ações</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% itens.each do |item| %>
+                                    <tr>
+                                      <td>
+                                        <div class="d-flex align-items-center">
+                                          <div class="avatar-xs bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <i class="fas fa-cube text-info" style="font-size: 0.8rem;"></i>
+                                          </div>
+                                          <div>
+                                            <%= item.produto&.nome || "Produto ##{item.codigo_produto}" %>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td class="text-center align-middle">
+                                        <span class="badge bg-primary rounded-pill px-3"><%= item.quantidade %></span>
+                                      </td>
+                                      <td class="text-end align-middle">
+                                        R$ <%= number_to_currency(item.valor_un, unit: '', separator: ',', delimiter: '.') %>
+                                      </td>
+                                      <td class="text-end align-middle fw-bold">
+                                        R$ <%= number_to_currency(item.quantidade * item.valor_un, unit: '', separator: ',', delimiter: '.') %>
+                                      </td>
+                                      <td class="text-center align-middle">
+                                        <%= button_to itens_pedido_path(item), 
+                                            method: :delete, 
+                                            class: "btn btn-sm btn-outline-danger px-2 py-1",
+                                            title: "Remover item",
+                                            form: { 
+                                              class: "d-inline",
+                                              data: { 
+                                                turbo_confirm: "Remover '#{item.produto&.nome || 'este item'}' do pedido?" 
+                                              } 
+                                            } do %>
+                                          <i class="fas fa-trash"></i>
+                                        <% end %>
+                                      </td>
+                                    </tr>
+                                  <% end %>
+                                  <tr class="table-active">
+                                    <td colspan="3" class="text-end fw-bold">Total do Pedido:</td>
+                                    <td class="text-end fw-bold">
+                                      R$ <%= number_to_currency(itens.sum { |item| item.quantidade * item.valor_un }, unit: '', separator: ',', delimiter: '.') %>
+                                    </td>
+                                    <td class="text-center">
+                                      <small class="text-muted">
+                                        <%= itens.count %> item(ns)
+                                      </small>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          <% else %>
+                            <div class="text-center py-4">
+                              <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                <i class="fas fa-shopping-basket fa-2x text-muted"></i>
+                              </div>
+                              <p class="text-muted mb-0">Nenhum item adicionado a este pedido.</p>
+                              <small class="text-muted">Use o formulário ao lado para adicionar produtos</small>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="text-center py-5">
+                  <div class="empty-state mb-4">
+                    <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                      <i class="fas fa-shopping-cart fa-2x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Nenhum pedido nesta mesa</h4>
+                    <p class="text-muted mb-4">Comece criando um novo pedido usando o formulário ao lado.</p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
         </div>
-      <% end %>
+      </div>
+    </div>
+
+    <!-- Aba 2: Fechar Conta -->
+    <div class="tab-pane fade" id="fechar-conta" role="tabpanel">
+      <!-- Reaproveitando a view de fechar_conta -->
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-receipt me-2"></i>
+            Fechar Conta - Mesa <%= @mesa.numero %>
+          </h4>
+        </div>
+        
+        <div class="card-body">
+          <% if @pedidos.any? %>
+            <!-- Cálculo do total da mesa -->
+            <% 
+              total_mesa = 0
+              itens_por_pedido = {}
+              
+              @pedidos.each do |pedido|
+                itens = @itens_pedidos.select { |item| item.codigo_pedido == pedido.codigo_pedido }
+                itens_por_pedido[pedido] = itens
+                total_mesa += itens.sum { |item| item.quantidade * item.valor_un }
+              end
+            %>
+            
+            <div class="mb-4">
+              <h5 class="text-primary mb-3">
+                <i class="fas fa-list me-2"></i>
+                Resumo de Todos os Pedidos
+              </h5>
+              
+              <% if @itens_pedidos.any? %>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Pedido</th>
+                        <th>Produto</th>
+                        <th class="text-center">Qtd</th>
+                        <th class="text-end">Valor Unit.</th>
+                        <th class="text-end">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% itens_por_pedido.each do |pedido, itens| %>
+                        <% if itens.any? %>
+                          <tr class="table-secondary">
+                            <td colspan="5" class="fw-bold">
+                              <i class="fas fa-receipt me-2"></i>
+                              Pedido #<%= pedido.codigo_pedido %> 
+                              (<%= pedido.data_hora.strftime("%H:%M") %>)
+                              <span class="badge bg-<%= pedido.status == 'fechado' ? 'success' : 'warning' %> ms-2">
+                                <%= pedido.status %>
+                              </span>
+                            </td>
+                          </tr>
+                          <% itens.each do |item| %>
+                            <tr>
+                              <td></td>
+                              <td><%= item.produto&.nome || "Produto ##{item.codigo_produto}" %></td>
+                              <td class="text-center"><%= item.quantidade %></td>
+                              <td class="text-end">R$ <%= number_to_currency(item.valor_un, unit: '', separator: ',', delimiter: '.') %></td>
+                              <td class="text-end">R$ <%= number_to_currency(item.quantidade * item.valor_un, unit: '', separator: ',', delimiter: '.') %></td>
+                            </tr>
+                          <% end %>
+                          <tr>
+                            <td colspan="4" class="text-end fw-bold">Subtotal Pedido #<%= pedido.codigo_pedido %>:</td>
+                            <td class="text-end fw-bold">
+                              R$ <%= number_to_currency(itens.sum { |item| item.quantidade * item.valor_un }, unit: '', separator: ',', delimiter: '.') %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              <% else %>
+                <div class="alert alert-warning text-center">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Nenhum produto nos pedidos.
+                </div>
+              <% end %>
+            </div>
+
+            <div class="mb-4">
+              <h5 class="text-primary mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Informações da Mesa
+              </h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card border-0 bg-light">
+                    <div class="card-body text-center">
+                      <h6 class="text-muted">Número da Mesa</h6>
+                      <h4 class="fw-bold"><%= @mesa.numero %></h4>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card border-0 bg-light">
+                    <div class="card-body text-center">
+                      <h6 class="text-muted">Capacidade</h6>
+                      <h4 class="fw-bold"><%= @mesa.quant_pessoas %> pessoas</h4>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card border-0 bg-light">
+                    <div class="card-body text-center">
+                      <h6 class="text-muted">Total de Pedidos</h6>
+                      <h4 class="fw-bold"><%= @pedidos.count %></h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-top pt-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-success">
+                    <i class="fas fa-calculator me-2"></i>
+                    Total da Mesa:
+                  </h5>
+                  <p class="text-muted mb-0">Inclui todos os pedidos</p>
+                </div>
+                <div class="col-md-6 text-end">
+                  <h3 class="text-success fw-bold">
+                    R$ <%= number_to_currency(total_mesa, unit: '', separator: ',', delimiter: '.') %>
+                  </h3>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4 mt-4 text-center">
+              <%= button_to "Confirmar Fechamento da Conta", 
+                    fechar_conta_mesa_path(@mesa), 
+                    method: :post,
+                    class: "btn btn-success btn-lg py-3 px-5",
+                    data: { 
+                      turbo_confirm: "CONFIRMAR FECHAMENTO DE CONTA\n\n" +
+                                    "Mesa: #{@mesa.numero}\n" +
+                                    "Total: R$ #{number_to_currency(total_mesa, unit: '', separator: ',', delimiter: '.')}\n" +
+                                    "Pedidos: #{@pedidos.count}\n\n" +
+                                    "Esta ação finalizará todos os pedidos e calculará o total." 
+                    } %>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <div class="avatar-lg bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                <i class="fas fa-shopping-cart fa-3x text-muted"></i>
+              </div>
+              <h4 class="text-muted mb-3">Nenhum pedido nesta mesa</h4>
+              <p class="text-muted mb-4">Crie pedidos primeiro para fechar a conta.</p>
+              <button class="btn btn-primary" onclick="document.getElementById('pedidos-tab').click()">
+                <i class="fas fa-utensils me-2"></i> Criar Primeiro Pedido
+              </button>
+            </div>
+          <% end %>
+
+          <div class="border-top pt-3">
+            <div class="row">
+              <div class="col-md-6">
+                <button class="btn btn-secondary" onclick="document.getElementById('pedidos-tab').click()">
+                  <i class="fas fa-arrow-left me-2"></i> Voltar para Pedidos
+                </button>
+              </div>
+              <div class="col-md-6 text-end">
+                <%= link_to "Voltar para Mesas", mesas_path, class: "btn btn-outline-primary" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<style>
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    margin-bottom: -2px;
+  }
+  
+  .nav-tabs .nav-link:hover {
+    color: #0d6efd;
+    border-bottom-color: #dee2e6;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #0d6efd;
+    background-color: transparent;
+    border-bottom: 3px solid #0d6efd;
+  }
+  
+  .tab-content {
+    padding-top: 1.5rem;
+  }
+  
+  .tab-pane {
+    animation: fadeIn 0.3s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .avatar-sm {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .avatar-xs {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .avatar-lg {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .btn-sm.btn-outline-danger {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+  }
+  
+  .btn-sm.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .fa-trash {
+    color: #dc3545;
+  }
+  
+  .btn-sm.btn-outline-danger:hover .fa-trash {
+    color: white;
+  }
+  
+  .table-secondary td {
+    background-color: rgba(0,0,0,.02);
+  }
+</style>
+
+<script>
+  // Ativar a aba correta baseada na URL
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    
+    if (tab === 'fechar-conta') {
+      const fecharContaTab = document.getElementById('fechar-conta-tab');
+      const bootstrapTab = new bootstrap.Tab(fecharContaTab);
+      bootstrapTab.show();
+    }
+    
+    // Salvar aba ativa no localStorage
+    const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabEls.forEach(tab => {
+      tab.addEventListener('shown.bs.tab', function(event) {
+        const activeTab = event.target.getAttribute('id');
+        localStorage.setItem('activeMesaTab', activeTab);
+      });
+    });
+    
+    // Restaurar aba ativa
+    const savedTab = localStorage.getItem('activeMesaTab');
+    if (savedTab) {
+      const tabEl = document.getElementById(savedTab);
+      if (tabEl) {
+        const bootstrapTab = new bootstrap.Tab(tabEl);
+        bootstrapTab.show();
+      }
+    }
+  });
+</script>

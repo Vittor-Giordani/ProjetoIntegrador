@@ -1,0 +1,188 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">
+      <i class="fas fa-user-tie me-2 text-primary"></i>
+      Gerenciamento de Garçons
+    </h3>
+    <%= link_to new_garcon_path, class: "btn btn-primary btn-lg shadow-sm" do %>
+      <i class="fas fa-plus-circle me-2"></i> Novo Garçom
+    <% end %>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+      <i class="fas fa-check-circle me-2"></i>
+      <%= flash[:notice] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <%= flash[:alert] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+
+  <div class="card border-0 shadow-lg overflow-hidden">
+    <div class="card-header bg-primary text-white py-3">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>
+            Meus Garçons
+          </h5>
+        </div>
+        <div class="col-md-6 text-end">
+          <span class="badge bg-light text-dark fs-6 px-3 py-2">
+            <i class="fas fa-users me-1"></i>
+            <%= @garcons.count %> <%= @garcons.count == 1 ? 'garçom' : 'garçons' %>
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="py-3 px-4 border-bottom" width="15%">
+                <i class="fas fa-hashtag me-2 text-muted"></i>
+                Código
+              </th>
+              <th class="py-3 px-4 border-bottom" width="60%">
+                <i class="fas fa-user me-2 text-muted"></i>
+                Nome
+              </th>
+              <th class="py-3 px-4 border-bottom text-center" width="25%">
+                <i class="fas fa-cogs me-2 text-muted"></i>
+                Ações
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @garcons.any? %>
+              <% @garcons.each do |garcon| %>
+                <tr class="border-bottom">
+                  <td class="py-3 px-4">
+                    <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-2">
+                      #<%= garcon.codigo_garcom.to_s.rjust(3, '0') %>
+                    </span>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <div class="flex-shrink-0 me-3">
+                        <div class="avatar-sm rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center">
+                          <i class="fas fa-user-tie text-primary"></i>
+                        </div>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-semibold"><%= garcon.nome %></h6>
+                        <small class="text-muted">
+                          <i class="fas fa-clipboard-list me-1"></i>
+                          <%= garcon.pedidos.count %> pedido(s)
+                        </small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-center">
+                    <div class="d-flex justify-content-center gap-2">
+                      <%= link_to edit_garcon_path(garcon), 
+                          class: "btn btn-outline-warning btn-sm px-3 py-2 d-flex align-items-center shadow-sm",
+                          title: "Editar" do %>
+                        <i class="fas fa-edit me-2"></i>
+                        <span class="d-none d-md-inline">Editar</span>
+                      <% end %>
+                      
+                      <%= button_to garcon_path(garcon), 
+                          method: :delete, 
+                          class: "btn btn-outline-danger btn-sm px-3 py-2 d-flex align-items-center shadow-sm",
+                          title: "Excluir",
+                          form: { 
+                            data: { 
+                              turbo_confirm: "Tem certeza que deseja excluir o garçom #{garcon.nome}?\n\nEsta ação não poderá ser desfeita." 
+                            } 
+                          } do %>
+                        <i class="fas fa-trash-alt me-2"></i>
+                        <span class="d-none d-md-inline">Excluir</span>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="3" class="text-center py-5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon mb-4">
+                      <i class="fas fa-user-tie fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Nenhum garçom cadastrado</h4>
+                    <p class="text-muted mb-4">Comece cadastrando seu primeiro garçom para gerenciar os pedidos.</p>
+                    <%= link_to new_garcon_path, class: "btn btn-primary btn-lg px-4" do %>
+                      <i class="fas fa-plus-circle me-2"></i> Cadastrar Primeiro Garçom
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <% if @garcons.any? %>
+      <div class="card-footer bg-light py-3">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Estes são os garçons cadastrados na sua conta.
+            </small>
+          </div>
+          <div class="col-md-6 text-end">
+            <small class="text-muted">
+              Usuário: <%= current_user.email %>
+            </small>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .avatar-sm {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .empty-state {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .empty-state-icon {
+    opacity: 0.5;
+  }
+  
+  .table > tbody > tr:hover {
+    background-color: rgba(0, 123, 255, 0.03);
+  }
+  
+  .btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .border-bottom {
+    border-bottom: 1px solid #e9ecef !important;
+  }
+</style>

@@ -1,117 +1,96 @@
 class MesasController < ApplicationController
   layout "dashboard"
-  before_action :set_mesa, only: [:edit, :update, :destroy, :fechar_conta, :reativar]
-  before_action :set_statuses, only: [:new, :edit]
-
+  
   def index
-    if params[:inativas]
-      @mesas = Mesa.inativas
-    else
-      @mesas = Mesa.ativas
-    end
+    @mesas = Mesa.do_usuario(current_user.id).order(:numero)
+    
+    @mesas_ativas = @mesas.where(ativo: true)
+    @mesas_inativas = @mesas.where(ativo: false)
   end
-
+  
   def new
     @mesa = Mesa.new
-    @mesa.ativo = true 
+    @statuses = [
+      ['Livre', 'livre'],
+      ['Ocupada', 'ocupada'],
+      ['Reservada', 'reservada']
+    ]
   end
-
+  
   def create
     @mesa = Mesa.new(mesa_params)
+    @mesa.user_id = current_user.id
+    
     if @mesa.save
-      log_criacao(@mesa) 
-      redirect_to mesas_path, notice: "Mesa cadastrada!"
+      redirect_to mesas_path, notice: "Mesa cadastrada com sucesso!"
     else
-      set_statuses
-      render :new, status: :unprocessable_entity
+      @statuses = [
+        ['Livre', 'livre'],
+        ['Ocupada', 'ocupada'],
+        ['Reservada', 'reservada']
+      ]
+      render :new
     end
   end
-
-  def edit; end
-
+  
+  def edit
+    @mesa = Mesa.find(params[:id])
+    verificar_permissao(@mesa)
+  end
+  
   def update
+    @mesa = Mesa.find(params[:id])
+    verificar_permissao(@mesa)
+    
     if @mesa.update(mesa_params)
-      log_edicao(@mesa)  
-      redirect_to mesas_path, notice: "Mesa atualizada!"
+      redirect_to mesas_path, notice: "Mesa atualizada com sucesso!"
     else
-      set_statuses
       render :edit
     end
   end
-
-  def destroy
-    if @mesa.update(ativo: false)
-      log_exclusao(@mesa) 
-      redirect_to mesas_path, notice: "Mesa #{@mesa.numero} inativada com sucesso!"
-    else
-      redirect_to mesas_path, alert: "Erro ao inativar mesa: #{@mesa.errors.full_messages.join(', ')}"
-    end
-  end
-
-  def reativar
-    if @mesa.update(ativo: true)
-      log_reativacao(@mesa)  # ✅ ADICIONAR LOG (novo método)
-      redirect_to mesas_path, notice: "Mesa #{@mesa.numero} reativada com sucesso!"
-    else
-      redirect_to mesas_path(inativas: true), alert: "Erro ao reativar mesa."
-    end
-  end
-
+  
   def fechar_conta
-    if request.get?
-      @pedido = @mesa.pedido_aberto
-      unless @pedido && @pedido.itens_pedidos.any?
-        redirect_to mesas_path, alert: "Não há pedidos abertos para esta mesa"
-        return
-      end
-      render :fechar_conta
+  @mesa = Mesa.find(params[:id])
+  
+  begin
+    ActiveRecord::Base.transaction do
+      # 1. Fechar todos os pedidos abertos (mantém histórico)
+      @mesa.pedidos.where(status: 'aberto').update_all(status: 'fechado')
+      
+      # 2. Liberar mesa
+      @mesa.update!(status: 'livre')
+    end
+    
+    flash[:success] = "Conta fechada com sucesso! Mesa #{@mesa.numero} está agora livre."
+    redirect_to mesas_path
+  rescue => e
+    flash[:error] = "Erro ao fechar conta: #{e.message}"
+    redirect_to mesa_path(@mesa, tab: 'fechar-conta')
+  end
+end
+  
+  def reativar
+    @mesa = Mesa.find(params[:id])
+    verificar_permissao(@mesa)
+    
+    @mesa.update(ativo: !@mesa.ativo)
+    
+    if @mesa.ativo
+      redirect_to mesas_path, notice: "Mesa reativada com sucesso!"
     else
-
-      @pedido = @mesa.pedido_aberto
-      if @pedido && @pedido.itens_pedidos.any?
-        caixa = Caixa.first
-        if caixa.nil?
-          caixa = Caixa.create!(
-            nome: "Caixa Automático",
-            login: "auto",
-            senha: "auto123"
-          )
-        end
-
-        conta = Conta.create(
-          total: @pedido.total,
-          status: 'fechada',
-          data_hora_final: Time.current,
-          codigo_mesa: @mesa.codigo_mesa,
-          codigo_caixa: caixa.codigo_caixa,
-          forma_pagamento: params[:forma_pagamento]
-        )
-        
-        if conta.persisted?
-          @pedido.update(status: 'fechado')
-          @mesa.update(status: 'Livre')
-          log_fechamento_conta(@mesa, conta.total)  # ✅ ADICIONAR LOG
-          redirect_to mesas_path, notice: "Conta fechada com sucesso! Total: R$ #{sprintf('%.2f', conta.total)} - Forma de pagamento: #{conta.forma_pagamento}"
-        else
-          redirect_to fechar_conta_mesa_path(@mesa), alert: "Erro ao fechar conta: #{conta.errors.full_messages.join(', ')}"
-        end
-      else
-        redirect_to mesas_path, alert: "Não há pedidos abertos para esta mesa"
-      end
+      redirect_to mesas_path, notice: "Mesa desativada com sucesso!"
     end
   end
-
+  
   private
-
-  def set_mesa
-    @mesa = Mesa.find(params[:id])
-  end
-
-  def set_statuses
-    @statuses = ['Livre', 'Reservado', 'Ocupado']
-  end
-
+  
   def mesa_params
-    params.require(:mesa).permit(:codigo_mesa, :numero, :status, :quant_pessoas, :ativo)
+    params.require(:mesa).permit(:numero, :quant_pessoas, :status, :ativo)
+  end
+  
+  def verificar_permissao(mesa)
+    unless mesa.user_id == current_user.id
+      redirect_to mesas_path, alert: "Você não tem permissão para acessar esta mesa."
+    end
   end
 end

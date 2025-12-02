@@ -1,55 +1,146 @@
-<div class="container mt-4">
+<div class="container-fluid py-4">
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">
-            <i class="fas fa-plus me-2"></i>
-            Nova Mesa
-          </h4>
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-lg">
+        <div class="card-header bg-primary text-white py-3">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-chair fa-lg me-3"></i>
+            <div>
+              <h4 class="mb-0">Nova Mesa</h4>
+              <small class="opacity-75">Cadastre uma nova mesa no sistema</small>
+            </div>
+          </div>
         </div>
         
-        <div class="card-body">
-          <%= form_with model: @mesa do |form| %>
-            
-            <!-- Removido o campo codigo_mesa - será automático -->
-            
-            <div class="mb-3">
-              <%= form.label :numero, "Número da Mesa", class: "form-label fw-bold" %>
-              <%= form.number_field :numero, class: "form-control", required: true, min: 1 %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :quant_pessoas, "Capacidade (nº de pessoas)", class: "form-label fw-bold" %>
-              <%= form.number_field :quant_pessoas, class: "form-control", required: true, min: 1 %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :status, "Status", class: "form-label fw-bold" %>
-              <%= form.select :status, options_for_select(@statuses), 
-                            { include_blank: "Selecione o status..." }, 
-                            { class: "form-select", required: true } %>
-            </div>
-
-            <!-- Campo Ativo/Inativo igual ao da edição -->
-            <div class="mb-4">
-              <%= form.label :ativo, "Status da Mesa", class: "form-label fw-bold" %>
-              <div class="form-check">
-                <%= form.check_box :ativo, class: "form-check-input", checked: true %>
-                <%= form.label :ativo, "Mesa Ativa", class: "form-check-label" %>
+        <div class="card-body p-4">
+          <%= form_with(model: @mesa, local: true, class: "needs-validation", novalidate: true) do |form| %>
+            <% if @mesa.errors.any? %>
+              <div class="alert alert-danger mb-4">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <h6 class="mb-0"><%= pluralize(@mesa.errors.count, "erro") %> impediram o cadastro:</h6>
+                </div>
+                <ul class="mb-0 ps-3">
+                  <% @mesa.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
               </div>
-              <small class="form-text text-muted">
-                Mesas inativas não aparecem na listagem principal, mas mantêm seus históricos.
-              </small>
+            <% end %>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :numero, "Número da Mesa", class: "form-label fw-bold" %>
+                <%= form.number_field :numero, 
+                    class: "form-control form-control-lg", 
+                    min: 1, 
+                    required: true,
+                    placeholder: "Ex: 1, 2, 3..." %>
+                <small class="form-text text-muted">
+                  Número identificador da mesa
+                </small>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <%= form.label :quant_pessoas, "Capacidade", class: "form-label fw-bold" %>
+                <%= form.number_field :quant_pessoas, 
+                    class: "form-control form-control-lg", 
+                    min: 1, 
+                    max: 20,
+                    required: true,
+                    placeholder: "Ex: 4, 6, 8..." %>
+                <small class="form-text text-muted">
+                  Número máximo de pessoas na mesa
+                </small>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <%= form.label :status, "Status Inicial", class: "form-label fw-bold" %>
+                <% 
+                  # Define os status se não estiverem definidos no controller
+                  status_options = @statuses || [
+                    ['Livre', 'livre'],
+                    ['Ocupada', 'ocupada'],
+                    ['Reservada', 'reservada']
+                  ]
+                %>
+                <%= form.select :status, 
+                    options_for_select(status_options, @mesa.status), 
+                    { include_blank: "Selecione o status..." }, 
+                    { class: "form-select", required: true } %>
+                <small class="form-text text-muted">
+                  Status inicial da mesa
+                </small>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <%= form.label :ativo, "Situação", class: "form-label fw-bold d-block" %>
+                <div class="form-check form-switch">
+                  <%= form.check_box :ativo, class: "form-check-input", checked: true %>
+                  <%= form.label :ativo, "Mesa ativa", class: "form-check-label" %>
+                </div>
+              </div>
             </div>
 
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <%= link_to "Voltar", mesas_path, class: "btn btn-secondary me-md-2" %>
-              <%= form.submit "Salvar", class: "btn btn-primary" %>
+            <div class="alert alert-info mt-3">
+              <div class="d-flex">
+                <i class="fas fa-info-circle me-3 mt-1"></i>
+                <div>
+                  <strong>Informações:</strong>
+                  <ul class="mb-0 mt-2">
+                    <li>O código da mesa será gerado automaticamente</li>
+                    <li>Você pode alterar o status a qualquer momento</li>
+                    <li>Mesas inativas não aparecem para pedidos</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between pt-4 border-top">
+              <%= link_to mesas_path, class: "btn btn-outline-secondary btn-lg px-4" do %>
+                <i class="fas fa-arrow-left me-2"></i> Cancelar
+              <% end %>
+              
+              <%= form.button type: "submit", class: "btn btn-primary btn-lg px-5" do %>
+                <i class="fas fa-save me-2"></i> Cadastrar Mesa
+              <% end %>
             </div>
           <% end %>
         </div>
       </div>
+      
+      
     </div>
   </div>
 </div>
+
+<style>
+  .form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  
+  .form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+  }
+  
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .border-top {
+    border-top: 1px solid #dee2e6 !important;
+  }
+  
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+  }
+</style>

@@ -17,15 +17,13 @@ Rails.application.routes.draw do
   get 'dashboard/mesas', to: 'mesas#index'
   delete "logout", to: "sessions#destroy"
 
-  
   resources :mesas do
-  member do
-    get :fechar_conta  
-    post :fechar_conta
-    post :reativar
+    member do
+      post :fechar_conta  # ← APENAS POST!
+      post :reativar
+    end
+    resources :pedidos, only: [:index, :create], controller: 'pedidos'
   end
-  resources :pedidos, only: [:index, :create], controller: 'pedidos'
-end
 
   resources :relatorios, only: [:index] do
     collection do
@@ -35,9 +33,8 @@ end
   end
 
   resources :products
-  resources :produtos, controller: "products" 
   resources :logs, only: [:index]
+  resources :garcons
   
-  resources :itens_pedidos, only: [:destroy], as: 'itens_pedidos'
-
+  resources :itens_pedidos, only: [:create, :destroy], as: 'itens_pedidos' 
 end

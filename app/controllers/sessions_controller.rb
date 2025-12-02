@@ -18,3 +18,4 @@ end
     redirect_to login_path, notice: "Logout realizado com sucesso!"
   end
 end
+

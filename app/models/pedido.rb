@@ -2,7 +2,7 @@ class Pedido < ApplicationRecord
   self.table_name = "pedidos"
   
   belongs_to :mesa, foreign_key: :codigo_mesa
-  belongs_to :garcom, foreign_key: :codigo_garcom, optional: true
+  belongs_to :garcon, foreign_key: :codigo_garcom, optional: true
   has_many :itens_pedidos, foreign_key: :codigo_pedido, dependent: :destroy, class_name: 'ItemPedido'
   has_many :produtos, through: :itens_pedidos
   

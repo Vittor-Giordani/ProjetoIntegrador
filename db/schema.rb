@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_11_29_191556) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_02_165745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -43,6 +43,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_29_191556) do
 
   create_table "garcons", primary_key: "codigo_garcom", id: :serial, force: :cascade do |t|
     t.string "nome", limit: 100
+    t.integer "user_id"
   end
 
   create_table "item_pedidos", force: :cascade do |t|
@@ -75,6 +76,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_29_191556) do
     t.string "status", limit: 50
     t.integer "quant_pessoas"
     t.boolean "ativo"
+    t.integer "user_id"
   end
 
   create_table "pedidos", primary_key: "codigo_pedido", id: :serial, force: :cascade do |t|
@@ -89,6 +91,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_11_29_191556) do
     t.string "tipo", limit: 50
     t.float "valor"
     t.string "status", limit: 50
+    t.integer "user_id"
   end
 
   create_table "users", force: :cascade do |t|

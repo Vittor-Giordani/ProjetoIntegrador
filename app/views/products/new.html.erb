@@ -1,37 +1,99 @@
 <div class="container mt-4">
-
-  <h3>Novo Produto</h3>
-
-  <div class="card shadow-sm mt-3">
-    <div class="card-body">
-
-      <%= form_with(model: @product, local: true) do |f| %>
-
-        <div class="mb-3">
-          <%= f.label :nome, "Nome do Produto" %>
-          <%= f.text_field :nome, class: "form-control" %>
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-box me-2"></i>
+            Novo Produto
+          </h4>
         </div>
+        
+        <div class="card-body">
+          <%= form_with(model: @product, url: products_path, local: true) do |form| %>
+            <% if @product.errors.any? %>
+              <div class="alert alert-danger">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <h6 class="mb-0"><%= pluralize(@product.errors.count, "erro") %> impediram o cadastro:</h6>
+                </div>
+                <ul class="mb-0 mt-2 ps-3">
+                  <% @product.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <%= form.label :nome, "Nome do Produto", class: "form-label fw-bold" %>
+                <%= form.text_field :nome, 
+                    class: "form-control", 
+                    required: true,
+                    placeholder: "Digite o nome do produto" %>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <%= form.label :tipo, "Tipo", class: "form-label fw-bold" %>
+                <% 
+                  tipos = @tipos || ['Bebida', 'Comida', 'Sobremesa', 'Acompanhamento', 'Outro'] 
+                %>
+                <%= form.select :tipo, 
+                    options_for_select(tipos, @product.tipo), 
+                    { include_blank: "Selecione o tipo..." }, 
+                    { class: "form-select", required: true } %>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <%= form.label :valor, "Valor (R$)", class: "form-label fw-bold" %>
+                <div class="input-group">
+                  <span class="input-group-text">R$</span>
+                  <%= form.number_field :valor, 
+                      class: "form-control", 
+                      step: "0.01",
+                      min: "0.01",
+                      required: true,
+                      placeholder: "0.00" %>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <%= form.label :status, "Status", class: "form-label fw-bold" %>
+                <% 
+                  status_options = @status_options || [['Ativo', 'ativo'], ['Inativo', 'inativo']] 
+                %>
+                <%= form.select :status, 
+                    options_for_select(status_options, @product.status || 'ativo'), 
+                    {}, 
+                    { class: "form-select", required: true } %>
+              </div>
+            </div>
 
-        <div class="mb-3">
-          <%= f.label :tipo, "Tipo" %>
-          <%= f.text_field :tipo, class: "form-control" %>
+            <div class="d-flex justify-content-between mt-4">
+              <%= link_to products_path, class: "btn btn-secondary" do %>
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+              <% end %>
+              
+              <%= form.submit "Cadastrar Produto", class: "btn btn-primary px-4" %>
+            </div>
+          <% end %>
         </div>
-
-        <div class="mb-3">
-          <%= f.label :valor, "Valor" %>
-          <%= f.number_field :valor, step: "0.01", class: "form-control" %>
+      </div>
+      
+      <div class="card mt-3">
+        <div class="card-body">
+          <h6 class="card-title text-primary">
+            <i class="fas fa-info-circle me-2"></i>
+            Informações Importantes
+          </h6>
+          <ul class="mb-0">
+            <li>Produtos com pedidos associados não podem ser excluídos</li>
+            <li>Produtos inativos não aparecem nas listas de pedidos</li>
+            <li>O código do produto é gerado automaticamente</li>
+          </ul>
         </div>
-
-        <div class="mb-3">
-          <%= f.label :status, "Status" %>
-          <%= f.select :status, ["ativo", "inativo"], {}, class: "form-select" %>
-        </div>
-
-        <%= link_to "Voltar", dashboard_produtos_path, class: "btn btn-secondary ms-2" %>
-        <%= f.submit "Salvar", class: "btn btn-success" %>
-      <% end %>
-
+      </div>
     </div>
   </div>
-
 </div>

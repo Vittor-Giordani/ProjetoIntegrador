@@ -1,0 +1,84 @@
+<!-- app/views/garcons/new.html.erb -->
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-user-plus me-2"></i>
+            Novo Garçom
+          </h4>
+        </div>
+        
+        <div class="card-body">
+          <%= form_with(model: @garcon, local: true) do |form| %>
+            <% if @garcon.errors.any? %>
+              <div class="alert alert-danger">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <h6 class="mb-0"><%= pluralize(@garcon.errors.count, "erro") %> impediram o cadastro:</h6>
+                </div>
+                <ul class="mb-0 mt-2 ps-3">
+                  <% @garcon.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            
+            <div class="mb-4">
+              <div class="form-group">
+                <%= form.label :nome, "Nome do Garçom", class: "form-label fw-bold" %>
+                <%= form.text_field :nome, 
+                    class: "form-control form-control-lg", 
+                    placeholder: "Digite o nome completo do garçom",
+                    required: true,
+                    autofocus: true %>
+                <small class="form-text text-muted">
+                  Ex: João Silva, Maria Santos
+                </small>
+              </div>
+            </div>
+
+            <div class="alert alert-info">
+              <div class="d-flex">
+                <i class="fas fa-info-circle me-2 mt-1"></i>
+                <div>
+                  <strong>Informação:</strong> O código do garçom será gerado automaticamente pelo sistema após o cadastro.
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+              <%= link_to garcons_path, class: "btn btn-secondary" do %>
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+              <% end %>
+              
+              <div>
+                <%= link_to "Limpar", new_garcon_path, class: "btn btn-outline-secondary me-2" %>
+                <%= form.submit "Cadastrar", class: "btn btn-primary px-4" do %>
+                  <i class="fas fa-save me-1"></i> Cadastrar
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="card mt-3">
+        <div class="card-body">
+          <h6 class="card-title text-primary">
+            <i class="fas fa-lightbulb me-2"></i>
+            Dicas Importantes
+          </h6>
+          <ul class="mb-0">
+            <li>Use nomes completos para melhor identificação</li>
+            <li>Cadastre todos os garçons antes de iniciar os pedidos</li>
+            <li>Pode editar informações a qualquer momento</li>
+            <li>Exclusão só é permitida se não houver pedidos vinculados</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

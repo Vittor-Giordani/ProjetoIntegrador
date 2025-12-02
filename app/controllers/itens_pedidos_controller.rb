@@ -1,24 +1,42 @@
 class ItensPedidosController < ApplicationController
-  layout "dashboard"
-  before_action :set_item_pedido
-
+  def create
+    @item_pedido = ItemPedido.new(item_pedido_params)
+    
+    produto = Produto.do_usuario(current_user.id).find_by(codigo_produto: params[:item_pedido][:codigo_produto])
+    
+    if produto
+      @item_pedido.valor_un = produto.valor
+      
+      if @item_pedido.save
+        redirect_to mesa_pedidos_path(Pedido.find(@item_pedido.codigo_pedido).mesa), 
+                    notice: "Produto adicionado ao pedido!"
+      else
+        redirect_to mesa_pedidos_path(Pedido.find(@item_pedido.codigo_pedido).mesa), 
+                    alert: "Erro ao adicionar produto: #{@item_pedido.errors.full_messages.join(', ')}"
+      end
+    else
+      redirect_to mesas_path, alert: "Produto não encontrado."
+    end
+  end
+  
   def destroy
-    mesa = @item_pedido.pedido.mesa
-    produto = @item_pedido.produto
-    @item_pedido.destroy
+    @item_pedido = ItemPedido.find(params[:id])
     
-    log_remocao_produto(mesa, produto) 
-    
-    if @item_pedido.pedido.itens_pedidos.empty?
-      mesa.update(status: 'Livre')
+    # Verifica permissão
+    pedido = @item_pedido.pedido
+    mesa = pedido.mesa
+    unless mesa.user_id == current_user.id
+      redirect_to root_path, alert: "Você não tem permissão para remover este item."
+      return
     end
     
-    redirect_to mesa_pedidos_path(mesa), notice: 'Item removido com sucesso!'
+    @item_pedido.destroy
+    redirect_back fallback_location: mesas_path, notice: "Item removido com sucesso!"
   end
-
+  
   private
-
-  def set_item_pedido
-    @item_pedido = ItemPedido.find(params[:id])
+  
+  def item_pedido_params
+    params.require(:item_pedido).permit(:codigo_produto, :quantidade, :codigo_pedido)
   end
 end

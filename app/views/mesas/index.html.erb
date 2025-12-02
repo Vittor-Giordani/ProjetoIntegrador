@@ -1,75 +1,265 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Gerenciamento de Mesas</h3>
-    <a href="<%= new_mesa_path %>" class="btn btn-primary">+ Nova Mesa</a>
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+    <div class="mb-3 mb-md-0">
+      <h1 class="h2 fw-bold text-dark mb-1">
+        <i class="fas fa-chair text-primary me-2"></i>
+        Gerenciamento de Mesas
+      </h1>
+      <p class="text-muted mb-0">
+        <i class="fas fa-info-circle me-1"></i>
+        Gerencie todas as mesas do seu estabelecimento
+      </p>
+    </div>
+    
+    <div class="d-flex flex-wrap gap-2">
+      <%= link_to new_mesa_path, class: "btn btn-primary d-flex align-items-center" do %>
+        <i class="fas fa-plus-circle me-2"></i> Nova Mesa
+      <% end %>
+      
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary active"></button>
+        <button type="button" class="btn btn-outline-secondary"></button>
+        <button type="button" class="btn btn-outline-secondary"></button>
+      </div>
+    </div>
   </div>
 
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <%= link_to "Mesas Ativas (#{Mesa.ativas.count})", 
-                  mesas_path, 
-                  class: "nav-link #{'active' unless params[:inativas]}" %>
-    </li>
-    <li class="nav-item">
-      <%= link_to "Mesas Inativas (#{Mesa.inativas.count})", 
-                  mesas_path(inativas: true), 
-                  class: "nav-link #{'active' if params[:inativas]}" %>
-    </li>
-  </ul>
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase small fw-semibold mb-1">Total Mesas</h6>
+              <h3 class="mb-0 fw-bold"><%= @mesas&.count || 0 %></h3>
+            </div>
+            <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="fas fa-chair fa-lg text-primary"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase small fw-semibold mb-1">Mesas Ativas</h6>
+              <h3 class="mb-0 fw-bold text-success"><%= @mesas_ativas&.count || 0 %></h3>
+            </div>
+            <div class="avatar-sm bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="fas fa-check-circle fa-lg text-success"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase small fw-semibold mb-1">Mesas Ocupadas</h6>
+              <h3 class="mb-0 fw-bold text-warning"><%= @mesas&.where(status: 'ocupada').count || 0 %></h3>
+            </div>
+            <div class="avatar-sm bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="fas fa-clock fa-lg text-warning"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted text-uppercase small fw-semibold mb-1">Mesas Inativas</h6>
+              <h3 class="mb-0 fw-bold text-secondary"><%= @mesas_inativas&.count || 0 %></h3>
+            </div>
+            <div class="avatar-sm bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+              <i class="fas fa-times-circle fa-lg text-secondary"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="card shadow-sm">
+  <div class="card border-0 shadow-lg">
+    <div class="card-header bg-white py-3 border-0">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <div class="mb-2 mb-md-0">
+          <h5 class="mb-0 fw-bold">
+            <i class="fas fa-list me-2 text-primary"></i>
+            Lista de Mesas
+          </h5>
+          <small class="text-muted">Clique em uma mesa para ver detalhes e pedidos</small>
+        </div>
+        
+        <div class="d-flex align-items-center">
+          <div class="input-group input-group-sm" style="max-width: 250px;">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" class="form-control border-start-0" placeholder="Buscar mesa..." id="search-mesa">
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0">
-          <thead class="table-dark">
+        <table class="table table-hover align-middle mb-0" id="mesas-table">
+          <thead class="table-light">
             <tr>
-              <th>Código</th>
-              <th>Mesa</th>
-              <th>Capacidade</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th class="py-3 px-4">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-hashtag text-muted me-2"></i>
+                  <span>Código</span>
+                </div>
+              </th>
+              <th class="py-3 px-4">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-chair text-muted me-2"></i>
+                  <span>Mesa</span>
+                </div>
+              </th>
+              <th class="py-3 px-4">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-users text-muted me-2"></i>
+                  <span>Capacidade</span>
+                </div>
+              </th>
+              <th class="py-3 px-4">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-circle text-muted me-2"></i>
+                  <span>Status</span>
+                </div>
+              </th>
+              <th class="py-3 px-4">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-cogs text-muted me-2"></i>
+                  <span>Ações</span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
-            <% @mesas.each do |m| %>
-              <tr class="<%= 'table-secondary' unless m.ativo? %>">
-                <td><%= m.codigo_mesa %></td>
-                <td><%= m.numero %></td>
-                <td><%= "#{m.quant_pessoas} pessoas" %></td>
-                <td>
-                  <% status_class = case m.status.to_s.downcase
-                     when "livre" then "badge bg-success"
-                     when "reservado" then "badge bg-warning"
-                     when "ocupado" then "badge bg-danger"
-                     else "badge bg-secondary"
-                  end %>
-                  <span class="<%= status_class %>"><%= m.status %></span>
-                  
-                  <% if m.ativo? %>
-                    <span class="badge bg-success">Ativa</span>
-                  <% else %>
-                    <span class="badge bg-secondary">Inativa</span>
-                  <% end %>
-                </td>
-                <td>
-                  <div class="btn-group btn-group-sm" role="group">
-                    <% if m.ativo? %>
-                      <%= link_to "Pedidos", mesa_pedidos_path(m), class: "btn btn-info" %>
-                      <%= link_to "Editar", edit_mesa_path(m), class: "btn btn-warning" %>
-                      
-                      <% if m.status == 'Ocupado' %>
-                        <%= link_to "Fechar", fechar_conta_mesa_path(m), class: "btn btn-success" %>
+            <% if @mesas&.any? %>
+              <% @mesas.each do |mesa| %>
+                <tr class="border-bottom">
+                  <td class="py-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                        #<%= mesa.codigo_mesa.to_s.rjust(3, '0') %>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                        <i class="fas fa-chair text-primary"></i>
+                      </div>
+                      <div>
+                        <strong class="d-block"><%= mesa.numero %></strong>
+                        <small class="text-muted">Mesa <%= mesa.numero %></small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-sm bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3">
+                        <i class="fas fa-user-friends text-info"></i>
+                      </div>
+                      <div>
+                        <strong class="d-block"><%= mesa.quant_pessoas %> pessoas</strong>
+                        <small class="text-muted">Capacidade máxima</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="d-flex align-items-center">
+                      <span class="badge bg-<%= mesa.status == 'ocupada' ? 'warning' : (mesa.ativo ? 'success' : 'secondary') %> px-3 py-2 d-flex align-items-center">
+                        <i class="fas fa-<%= mesa.status == 'ocupada' ? 'clock' : (mesa.ativo ? 'check' : 'times') %> me-2"></i>
+                        <%= mesa.status == 'ocupada' ? 'Ocupada' : (mesa.ativo ? 'Livre' : 'Inativa') %>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4">
+                    <div class="d-flex flex-wrap gap-2">
+                      <% if mesa.ativo %>
+                        <%= link_to mesa_pedidos_path(mesa), 
+                            class: "btn btn-outline-primary btn-sm d-flex align-items-center px-3",
+                            title: "Ver Pedidos",
+                            data: { turbo_frame: "pedidos-frame" } do %>
+                          <i class="fas fa-utensils me-2"></i>
+                          <span>Pedidos</span>
+                        <% end %>
                       <% end %>
                       
-                      <%= button_to "Inativar", mesa_path(m), method: :delete, 
-                                    class: "btn btn-outline-danger", 
-                                    data: { turbo_confirm: "Deseja inativar a mesa #{m.numero}?" } %>
-                    <% else %>
-                      <!-- Ações para mesas inativas -->
-                      <%= button_to "Reativar", reativar_mesa_path(m), method: :post,
-                                    class: "btn btn-success",
-                                    data: { turbo_confirm: "Deseja reativar a mesa #{m.numero}?" } %>
-                      <%= link_to "Ver Detalhes", edit_mesa_path(m), class: "btn btn-outline-info" %>
+                      <%= link_to edit_mesa_path(mesa), 
+                          class: "btn btn-outline-warning btn-sm d-flex align-items-center px-3",
+                          title: "Editar Mesa" do %>
+                        <i class="fas fa-edit me-2"></i>
+                        <span>Editar</span>
+                      <% end %>
+                      
+                      <% if mesa.status == 'ocupada' && mesa.respond_to?(:fechar_conta) %>
+                        <%= link_to fechar_conta_mesa_path(mesa), 
+                            method: :post,
+                            class: "btn btn-outline-danger btn-sm d-flex align-items-center px-3",
+                            title: "Fechar Conta",
+                            data: { turbo_confirm: "Fechar conta da Mesa #{mesa.numero}?" } do %>
+                          <i class="fas fa-cash-register me-2"></i>
+                          <span>Fechar Conta</span>
+                        <% end %>
+                      <% end %>
+                      
+                      <% if mesa.ativo %>
+                        <%= button_to reativar_mesa_path(mesa), 
+                            method: :post, 
+                            class: "btn btn-outline-danger btn-sm d-flex align-items-center px-3",
+                            title: "Desativar Mesa",
+                            form: { 
+                              class: "d-inline",
+                              data: { turbo_confirm: "Tem certeza que deseja desativar a mesa #{mesa.numero}?" } 
+                            } do %>
+                          <i class="fas fa-power-off me-2"></i>
+                          <span>Desativar</span>
+                        <% end %>
+                      <% else %>
+                        <%= button_to reativar_mesa_path(mesa), 
+                            method: :post, 
+                            class: "btn btn-outline-success btn-sm d-flex align-items-center px-3",
+                            title: "Reativar Mesa",
+                            form: { 
+                              class: "d-inline",
+                              data: { turbo_confirm: "Tem certeza que deseja reativar a mesa #{mesa.numero}?" } 
+                            } do %>
+                          <i class="fas fa-power-off me-2"></i>
+                          <span>Reativar</span>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="5" class="text-center py-5">
+                  <div class="empty-state">
+                    <div class="empty-state-icon mb-4">
+                      <i class="fas fa-chair fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="text-muted mb-3">Nenhuma mesa cadastrada</h4>
+                    <p class="text-muted mb-4">Comece cadastrando sua primeira mesa para organizar seu estabelecimento.</p>
+                    <%= link_to new_mesa_path, class: "btn btn-primary px-4" do %>
+                      <i class="fas fa-plus-circle me-2"></i> Cadastrar Primeira Mesa
                     <% end %>
                   </div>
                 </td>
@@ -79,5 +269,185 @@
         </table>
       </div>
     </div>
+    
+    <% if @mesas&.any? %>
+      <div class="card-footer bg-white py-3 border-top">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Mostrando <%= @mesas.count %> mesa(s) • 
+              <%= @mesas_ativas&.count || 0 %> ativa(s) • 
+              <%= @mesas&.where(status: 'ocupada').count || 0 %> ocupada(s)
+            </small>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <small class="text-muted">
+              <i class="fas fa-user me-1"></i>
+              <%= current_user.email %>
+            </small>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>
+
+
+<style>
+  .container-fluid {
+    max-width: 1400px;
+  }
+  
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .avatar-sm {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  
+  .table > tbody > tr {
+    transition: background-color 0.2s ease;
+  }
+  
+  .table > tbody > tr:hover {
+    background-color: rgba(13, 110, 253, 0.03);
+  }
+  
+  .btn-outline-primary {
+    border-color: #0d6efd;
+    color: #0d6efd;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+  
+  .btn-outline-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+  }
+  
+  .btn-outline-warning:hover {
+    background-color: #ffc107;
+    color: #212529;
+    border-color: #ffc107;
+  }
+  
+  .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+  }
+  
+  .btn-outline-success {
+    border-color: #198754;
+    color: #198754;
+  }
+  
+  .btn-outline-success:hover {
+    background-color: #198754;
+    color: white;
+    border-color: #198754;
+  }
+  
+  .badge {
+    font-weight: 500;
+  }
+  
+  .border-bottom {
+    border-bottom: 1px solid #e9ecef !important;
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  }
+  
+  .empty-state {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .empty-state-icon {
+    opacity: 0.5;
+  }
+  
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .input-group-text {
+    background-color: #f8f9fa;
+  }
+  
+  @media (max-width: 768px) {
+    .container-fluid {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .card-body {
+      padding: 1rem !important;
+    }
+    
+    .table-responsive {
+      font-size: 0.875rem;
+    }
+    
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+    
+    .btn-sm span {
+      display: none;
+    }
+    
+    .btn-sm i {
+      margin-right: 0 !important;
+    }
+  }
+</style>
+
+<script>
+  document.getElementById('search-mesa')?.addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#mesas-table tbody tr');
+    
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+  });
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth < 768) {
+      const buttons = document.querySelectorAll('.btn-sm');
+      buttons.forEach(button => {
+        button.setAttribute('title', button.getAttribute('title') || button.textContent.trim());
+      });
+    }
+  });
+</script>
