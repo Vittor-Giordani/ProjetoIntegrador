@@ -85,7 +85,6 @@
               <div class="col-md-6 mb-3">
                 <%= form.label :status, "Status", class: "form-label fw-bold" %>
                 <% 
-                  # Define os status com fallback
                   status_options = @statuses || [
                     ['Livre', 'livre'],
                     ['Ocupada', 'ocupada'],

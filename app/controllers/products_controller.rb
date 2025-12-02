@@ -1,6 +1,6 @@
 class ProductsController < ApplicationController
   layout "dashboard"
-  before_action :set_product, only: [:edit, :update, :destroy]  # REMOVA :show daqui
+  before_action :set_product, only: [:edit, :update, :destroy]
   before_action :verificar_permissao, only: [:edit, :update, :destroy]
   before_action :carregar_dados_para_formulario, only: [:new, :edit]
 
@@ -45,7 +45,6 @@ class ProductsController < ApplicationController
     end
   end
 
-  # Ação show opcional - se não vai usar, pode remover
   def show
     redirect_to products_path
   end
@@ -57,7 +56,6 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    # Aceita tanto 'product' quanto 'produto'
     if params[:product]
       params.require(:product).permit(:nome, :tipo, :valor, :status)
     elsif params[:produto]

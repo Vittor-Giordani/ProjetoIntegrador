@@ -54,10 +54,8 @@ class MesasController < ApplicationController
   
   begin
     ActiveRecord::Base.transaction do
-      # 1. Fechar todos os pedidos abertos (mantém histórico)
       @mesa.pedidos.where(status: 'aberto').update_all(status: 'fechado')
       
-      # 2. Liberar mesa
       @mesa.update!(status: 'livre')
     end
     

@@ -57,7 +57,6 @@
               <div class="col-md-6 mb-3">
                 <%= form.label :status, "Status Inicial", class: "form-label fw-bold" %>
                 <% 
-                  # Define os status se não estiverem definidos no controller
                   status_options = @statuses || [
                     ['Livre', 'livre'],
                     ['Ocupada', 'ocupada'],

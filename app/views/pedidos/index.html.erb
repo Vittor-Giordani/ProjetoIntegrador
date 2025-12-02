@@ -1,10 +1,8 @@
 <div class="container-fluid py-4">
-  <!-- Cabeçalho -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-3">
-          <!-- Botão Voltar para Mesas -->
           <%= link_to mesas_path, class: "btn btn-outline-secondary d-flex align-items-center gap-2" do %>
             <i class="fas fa-arrow-left"></i>
             Voltar para Mesas
@@ -35,7 +33,6 @@
     </div>
   </div>
 
-  <!-- Alertas -->
   <% if flash[:notice] %>
     <div class="row mb-4">
       <div class="col-12">
@@ -60,7 +57,6 @@
     </div>
   <% end %>
 
-  <!-- Abas de Navegação -->
   <div class="row mb-4">
     <div class="col-12">
       <ul class="nav nav-tabs" id="mesaTabs" role="tablist">
@@ -91,14 +87,10 @@
     </div>
   </div>
 
-  <!-- Conteúdo das Abas -->
   <div class="tab-content" id="mesaTabsContent">
-    <!-- Aba 1: Pedidos -->
     <div class="tab-pane fade show active" id="pedidos" role="tabpanel">
       <div class="row">
-        <!-- Coluna Esquerda - Formulários -->
         <div class="col-lg-6">
-          <!-- Card: Novo Pedido -->
           <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-primary bg-gradient text-white py-3">
               <div class="d-flex justify-content-between align-items-center">
@@ -139,7 +131,6 @@
             </div>
           </div>
 
-          <!-- Card: Adicionar Produto a Pedido -->
           <% if @pedidos.any? %>
             <div class="card shadow-sm border-0 mb-4">
               <div class="card-header bg-info bg-gradient text-white py-3">
@@ -199,7 +190,6 @@
           <% end %>
         </div>
 
-        <!-- Coluna Direita - Lista de Pedidos -->
         <div class="col-lg-6">
           <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-dark bg-gradient text-white py-3">
@@ -239,7 +229,6 @@
                       </h2>
                       <div id="pedido<%= pedido.codigo_pedido %>" class="accordion-collapse collapse <%= index == 0 ? 'show' : '' %>" data-bs-parent="#pedidosAccordion">
                         <div class="accordion-body bg-white">
-                          <!-- Informações do pedido -->
                           <div class="row mb-3">
                             <div class="col-md-12">
                               <div class="d-flex align-items-center mb-2">
@@ -261,7 +250,6 @@
                             </div>
                           </div>
 
-                          <!-- Itens do pedido -->
                           <% itens = @itens_pedidos.select { |item| item.codigo_pedido == pedido.codigo_pedido } %>
                           <% if itens.any? %>
                             <div class="table-responsive">
@@ -358,9 +346,7 @@
       </div>
     </div>
 
-    <!-- Aba 2: Fechar Conta -->
     <div class="tab-pane fade" id="fechar-conta" role="tabpanel">
-      <!-- Reaproveitando a view de fechar_conta -->
       <div class="card shadow">
         <div class="card-header bg-success text-white">
           <h4 class="mb-0">
@@ -371,7 +357,6 @@
         
         <div class="card-body">
           <% if @pedidos.any? %>
-            <!-- Cálculo do total da mesa -->
             <% 
               total_mesa = 0
               itens_por_pedido = {}

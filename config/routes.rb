@@ -19,7 +19,7 @@ Rails.application.routes.draw do
 
   resources :mesas do
     member do
-      post :fechar_conta  # ← APENAS POST!
+      post :fechar_conta 
       post :reativar
     end
     resources :pedidos, only: [:index, :create], controller: 'pedidos'

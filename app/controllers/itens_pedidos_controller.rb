@@ -22,7 +22,6 @@ class ItensPedidosController < ApplicationController
   def destroy
     @item_pedido = ItemPedido.find(params[:id])
     
-    # Verifica permissão
     pedido = @item_pedido.pedido
     mesa = pedido.mesa
     unless mesa.user_id == current_user.id
